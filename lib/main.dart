@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:silica_ui/silica_ui.dart';
 
+import 'src/app_info.dart';
 import 'src/app.dart';
 import 'src/model/navigation.dart';
 import 'src/model/panes.dart';
@@ -19,6 +20,8 @@ import 'src/system/system.dart';
 void main(List<String> args) {
   startupBegin();
   WidgetsFlutterBinding.ensureInitialized();
+  // About Settings and the standard app menu (silica-ui#99).
+  SilicaApp.info = appInfo;
   // The toolbar is unified with the window: Ossido draws only the window buttons.
   SilicaWindow.setFullSizeContent(toolbarHeight).ignore();
   // A single-window app: it quits with its window and comes back in the same place

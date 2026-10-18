@@ -72,7 +72,8 @@ void main() {
       'Edit',
       'View',
       'Window',
-      'Help',
+      // The standard Help menu (silica-ui#99): the bar gives its title.
+      '',
     ]);
     // About only: no Settings item, no File menu.
     expect(items('Settings').map((i) => i['role']), contains('about'));

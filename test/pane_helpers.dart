@@ -47,11 +47,14 @@ Future<void> choose(WidgetTester tester, String key, String item) async {
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
-  await tester.tap(
-    find
-        .descendant(of: find.byType(AmalfiMenu), matching: find.text(item))
-        .last,
-  );
+  final row = find
+      .descendant(of: find.byType(AmalfiMenu), matching: find.text(item))
+      .last;
+  // A long menu opens with the selected row over the control and the rest scrolled (the
+  // measured placement): scroll to the row as the user would.
+  await Scrollable.ensureVisible(tester.element(row), alignment: 0.5);
+  await tester.pump();
+  await tester.tap(row);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
   // The menu fades out over the pane for a moment.
