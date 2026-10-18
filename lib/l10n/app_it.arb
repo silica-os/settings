@@ -331,7 +331,7 @@
   "storageAvailableOf": "{available} disponibili su {total}",
   "lockMinutes": "{count, plural, =1{1 minuto} other{{count} minuti}}",
   "lockHours": "{count, plural, =1{1 ora} other{{count} ore}}",
-  "lockSeconds": "{count} secondi",
+  "lockSeconds": "{count, plural, =1{1 secondo} other{{count} secondi}}",
   "appearanceOtherApps": "Le app e il desktop lo seguono subito.",
   "appearanceNoTintYet": "Colorare le finestre con lo sfondo non è ancora disponibile.",
   "appearanceThemeNote": "Le app e il desktop lo seguono subito. I colori delle cartelle non sono ancora disponibili.",
@@ -631,5 +631,19 @@
   "accessibilityTextSize": "Dimensione del testo",
   "accessibilityTextDefault": "Predefinita",
   "accessibilityTextLarger": "Più grande",
-  "accessibilityLargerTextHelp": "Ingrandisce il testo delle app. La barra dei menu, il Dock e le altre parti della scrivania mantengono la loro dimensione."
+  "accessibilityLargerTextHelp": "Ingrandisce il testo delle app. La barra dei menu, il Dock e le altre parti della scrivania mantengono la loro dimensione.",
+  "@lockSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "screenSaver": "Salvaschermo",
+  "screenSaverStartAfter": "Avvia dopo",
+  "screenSaverDrift": "Deriva",
+  "screenSaverClock": "Orologio",
+  "screenSaverColors": "Colori",
+  "screenSaverHelp": "Il salvaschermo parte quando il computer è inattivo per questo tempo e termina con un tasto o un movimento. La schermata di blocco chiede la password dopo l'intervallo impostato in Blocco schermo.",
+  "lockPasswordDelayHelp": "La password viene richiesta dopo l'avvio del salvaschermo o lo spegnimento dello schermo e prima che il computer vada in stop."
 }

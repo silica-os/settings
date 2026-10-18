@@ -1046,7 +1046,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String lockSeconds(int count) {
-    return '$count secondi';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count secondi',
+      one: '1 secondo',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2046,4 +2052,27 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get accessibilityLargerTextHelp =>
       'Ingrandisce il testo delle app. La barra dei menu, il Dock e le altre parti della scrivania mantengono la loro dimensione.';
+
+  @override
+  String get screenSaver => 'Salvaschermo';
+
+  @override
+  String get screenSaverStartAfter => 'Avvia dopo';
+
+  @override
+  String get screenSaverDrift => 'Deriva';
+
+  @override
+  String get screenSaverClock => 'Orologio';
+
+  @override
+  String get screenSaverColors => 'Colori';
+
+  @override
+  String get screenSaverHelp =>
+      'Il salvaschermo parte quando il computer è inattivo per questo tempo e termina con un tasto o un movimento. La schermata di blocco chiede la password dopo l\'intervallo impostato in Blocco schermo.';
+
+  @override
+  String get lockPasswordDelayHelp =>
+      'La password viene richiesta dopo l\'avvio del salvaschermo o lo spegnimento dello schermo e prima che il computer vada in stop.';
 }

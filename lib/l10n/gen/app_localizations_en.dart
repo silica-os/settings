@@ -1043,7 +1043,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lockSeconds(int count) {
-    return '$count seconds';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seconds',
+      one: '1 second',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2040,4 +2046,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accessibilityLargerTextHelp =>
       'Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.';
+
+  @override
+  String get screenSaver => 'Screen saver';
+
+  @override
+  String get screenSaverStartAfter => 'Start after';
+
+  @override
+  String get screenSaverDrift => 'Drift';
+
+  @override
+  String get screenSaverClock => 'Clock';
+
+  @override
+  String get screenSaverColors => 'Colours';
+
+  @override
+  String get screenSaverHelp =>
+      'The screen saver starts when the computer has been idle for this long and ends with any key or movement. The lock screen asks for the password after the delay set in Lock Screen.';
+
+  @override
+  String get lockPasswordDelayHelp =>
+      'The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.';
 }

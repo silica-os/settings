@@ -13,3 +13,10 @@ window themselves were not shown (*unmeasured*).
 | Login window shows (also when switching users) | radio group: list of users / name and password fields | *unmeasured* |
 | Show sleep, restart and shut down buttons | switch | on |
 | Accessibility options | button | — |
+
+## In Silica
+
+The lock screen is the shell's `lock` layer; its look is ours (the reference one was not
+captured). Working controls: the display-off time (`power.json`), the password delay and the
+user's name and picture (`lockscreen.json`). The hints, the lock message, the login window
+options and the power buttons stay disabled (silica-os/settings#50).

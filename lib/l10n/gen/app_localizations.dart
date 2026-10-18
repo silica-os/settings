@@ -2087,7 +2087,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockSeconds.
   ///
   /// In en, this message translates to:
-  /// **'{count} seconds'**
+  /// **'{count, plural, =1{1 second} other{{count} seconds}}'**
   String lockSeconds(int count);
 
   /// No description provided for @appearanceOtherApps.
@@ -3847,6 +3847,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.'**
   String get accessibilityLargerTextHelp;
+
+  /// No description provided for @screenSaver.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen saver'**
+  String get screenSaver;
+
+  /// No description provided for @screenSaverStartAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Start after'**
+  String get screenSaverStartAfter;
+
+  /// No description provided for @screenSaverDrift.
+  ///
+  /// In en, this message translates to:
+  /// **'Drift'**
+  String get screenSaverDrift;
+
+  /// No description provided for @screenSaverClock.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock'**
+  String get screenSaverClock;
+
+  /// No description provided for @screenSaverColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours'**
+  String get screenSaverColors;
+
+  /// No description provided for @screenSaverHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The screen saver starts when the computer has been idle for this long and ends with any key or movement. The lock screen asks for the password after the delay set in Lock Screen.'**
+  String get screenSaverHelp;
+
+  /// No description provided for @lockPasswordDelayHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.'**
+  String get lockPasswordDelayHelp;
 }
 
 class _AppLocalizationsDelegate

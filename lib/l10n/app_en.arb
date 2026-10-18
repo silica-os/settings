@@ -372,7 +372,7 @@
       }
     }
   },
-  "lockSeconds": "{count} seconds",
+  "lockSeconds": "{count, plural, =1{1 second} other{{count} seconds}}",
   "@lockSeconds": {
     "placeholders": {
       "count": {
@@ -842,5 +842,12 @@
   "accessibilityTextSize": "Text size",
   "accessibilityTextDefault": "Default",
   "accessibilityTextLarger": "Larger",
-  "accessibilityLargerTextHelp": "Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size."
+  "accessibilityLargerTextHelp": "Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.",
+  "screenSaver": "Screen saver",
+  "screenSaverStartAfter": "Start after",
+  "screenSaverDrift": "Drift",
+  "screenSaverClock": "Clock",
+  "screenSaverColors": "Colours",
+  "screenSaverHelp": "The screen saver starts when the computer has been idle for this long and ends with any key or movement. The lock screen asks for the password after the delay set in Lock Screen.",
+  "lockPasswordDelayHelp": "The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps."
 }

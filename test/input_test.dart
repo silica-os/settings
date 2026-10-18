@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:silica_settings/src/model/panes.dart';
 import 'package:silica_settings/src/panes/input.dart';
 import 'package:silica_settings/src/system/shortcuts.dart';
+import 'package:silica_settings/src/system/shell_config.dart';
 import 'package:silica_settings/src/system/system.dart';
 import 'package:silica_settings/src/system/tools.dart';
 import 'package:silica_ui/silica_ui.dart';
@@ -414,6 +415,26 @@ void main() {
     expect(h.system.calls.last, 'setLook {textScale: 1.3}');
   });
 
+  testWidgets('Lock Screen: the password delay and the user are written', (
+    tester,
+  ) async {
+    final h = await pumpSettings(tester, pane: PaneId.lockScreen, height: 900);
+    // The reference machine's 15 minutes until the user says otherwise.
+    expect(h.config.passwordDelay(), 900);
+    await choose(tester, 'lock password delay', 'Immediately');
+    expect(h.config.read('lockscreen')['passwordDelay'], 0);
+    await choose(tester, 'lock password delay', '1 hour');
+    expect(h.config.read('lockscreen')['passwordDelay'], 3600);
+    await choose(tester, 'lock password delay', 'Never');
+    // Never is a null that stays in the file: the key's absence means 15 minutes.
+    expect(h.config.read('lockscreen').containsKey('passwordDelay'), isTrue);
+    expect(h.config.read('lockscreen')['passwordDelay'], isNull);
+    expect(h.config.passwordDelay(), isNull);
+    await tester.tap(switchIn('lock show user'));
+    await tester.pump();
+    expect(h.config.read('lockscreen')['showUser'], false);
+  });
+
   testWidgets('Users & Groups lists the accounts', (tester) async {
     final tools = FakeTools()
       ..accounts = const [
@@ -457,7 +478,6 @@ void main() {
 
   for (final pane in [
     PaneId.screenTime,
-    PaneId.lockScreen,
     PaneId.privacy,
     PaneId.password,
     PaneId.internetAccounts,

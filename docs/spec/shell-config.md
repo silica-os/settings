@@ -123,6 +123,22 @@ These are read by the compositor and the daemon (silica-desktop `docs/control.md
 `docs/daemon.md` are the contract); Settings writes them through `lib/src/system/settings_files.dart`
 and their controls are **written**. Ranges are the readers'; Settings stays inside them.
 
+### lockscreen.json and screensaver.json
+
+```json
+{ "passwordDelay": 900, "showUser": true }
+{ "minutes": 10, "saver": "drift" }
+```
+
+`passwordDelay` is the seconds between the screen saver starting (or the display turning off)
+and the lock; `0` at once, `null` never, **absent** 900 (the reference machine's 15 minutes);
+Settings offers Immediately, 5 seconds, 1, 5 and 15 minutes, 1 hour and Never. `showUser`
+(default true) shows the name and initial on the lock screen. `screensaver.json`: `saver` is
+`drift`, `clock` or `colors`; `minutes` (0 or absent: never) is the idle time before it starts.
+Ossido reads `passwordDelay` and the screensaver file; the shell reads `showUser`.
+Not wired: the password hints, the lock message, the login window options and the power
+buttons of the lock screen (their controls stay disabled with #50).
+
 ### shortcuts.json
 
 ```json

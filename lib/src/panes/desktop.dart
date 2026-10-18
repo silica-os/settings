@@ -26,6 +26,7 @@ import '../ui/errors.dart';
 import '../ui/grouped.dart';
 import '../ui/symbol.dart';
 import 'input.dart' show showShortcuts;
+import 'screen_saver.dart' show showScreenSaver;
 
 /// The sound item of the menu bar (menubar.json `sound`).
 enum SoundItem { always, active, never }
@@ -882,12 +883,11 @@ class _WallpaperPaneState extends State<WallpaperPane> {
               ),
             ),
             const SizedBox(width: 10),
-            Unavailable(
-              child: AmalfiPushButton(
-                label: l.wallpaperScreenSaver,
-                size: AmalfiControlSize.small,
-                onPressed: () {},
-              ),
+            AmalfiPushButton(
+              key: const ValueKey('screen saver button'),
+              label: l.wallpaperScreenSaver,
+              size: AmalfiControlSize.small,
+              onPressed: () => showScreenSaver(context),
             ),
           ],
         ),

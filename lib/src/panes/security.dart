@@ -1,9 +1,9 @@
 // Lock Screen (ST-LCK-01), Privacy and Security (ST-PRV-01), Login Password (ST-USR-01), Users
 // and Groups (ST-USR-01), Internet Accounts (ST-ACN-01), Accessibility (ST-ACC-01/02) and
 // Search (ST-SPT-01). Real: the user accounts (passwd and group, administrators from wheel).
-// Silica has no lock screen yet (#50), and the accounts, privacy, accessibility and search
-// settings wait for their backends: each group names its issue. The Lock Screen's display-off
-// time is power.json's, which Ossido reads (#68).
+// The lock screen is the shell's (#50): the password delay and the user's name are
+// lockscreen.json; the display-off time is power.json's, which Ossido reads (#68). The
+// accounts, privacy and search settings wait for their backends: each group names its issue.
 
 import 'package:flutter/widgets.dart';
 import 'package:silica_ui/silica_ui.dart';
@@ -13,6 +13,7 @@ import '../model/panes.dart';
 import '../services.dart';
 import '../style.dart';
 import '../model/issues.dart';
+import '../system/shell_config.dart';
 import '../system/tools.dart';
 import '../ui/grouped.dart';
 import 'power.dart' show idleRow;
@@ -28,11 +29,11 @@ class _LockScreenPaneState extends State<LockScreenPane> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // The display turns off by power.json (Ossido, #68); the lock itself has no screen yet.
+    // The display turns off by power.json (Ossido, #68); the lock screen is the shell's.
     return PanePage(
       children: [
         SettingsGroup(
-          footer: l.notAvailableYet,
+          footer: l.lockPasswordDelayHelp,
           children: [
             idleRow(
               context,
@@ -41,13 +42,21 @@ class _LockScreenPaneState extends State<LockScreenPane> {
               configKey: 'displayOffMinutes',
               changed: () => setState(() {}),
             ),
-            // The reference machine's value is shown: 15 minutes.
-            Unavailable(
-              child: PopUpRow<int>(
-                title: l.lockPasswordDelay,
-                items: [PopUpItem(900, l.lockMinutes(15))],
-                value: 900,
-                onChanged: (_) {},
+            passwordDelayRow(context, () => setState(() {})),
+          ],
+        ),
+        SettingsGroup(
+          children: [
+            SwitchRow(
+              key: const ValueKey('lock show user'),
+              title: l.lockShowUser,
+              value: ServicesScope.of(
+                context,
+              ).config.flag('lockscreen', 'showUser', fallback: true),
+              onChanged: (on) => setState(
+                () => ServicesScope.of(
+                  context,
+                ).config.write('lockscreen', 'showUser', on),
               ),
             ),
           ],
@@ -56,7 +65,6 @@ class _LockScreenPaneState extends State<LockScreenPane> {
           unavailable: true,
           issue: Issues.lockScreen,
           children: [
-            SwitchRow(title: l.lockShowUser, value: true),
             SwitchRow(title: l.lockShowHints, value: false),
             SwitchRow(title: l.lockShowMessage, value: false),
           ],
@@ -83,6 +91,33 @@ class _LockScreenPaneState extends State<LockScreenPane> {
       ],
     );
   }
+}
+
+/// The pop-up for the password delay: from the screen saver or the display turning off.
+Widget passwordDelayRow(BuildContext context, VoidCallback changed) {
+  final l = AppLocalizations.of(context);
+  final config = ServicesScope.of(context).config;
+  String label(int? seconds) => switch (seconds) {
+    null => l.lockNever,
+    0 => l.lockImmediately,
+    < 60 => l.lockSeconds(seconds),
+    final s when s % 3600 == 0 => l.lockHours(s ~/ 3600),
+    final s => l.lockMinutes(s ~/ 60),
+  };
+  final saved = config.passwordDelay();
+  // -1 stands for "never" (a pop-up value cannot be null).
+  final choices = {...passwordDelayChoices, saved}.toList()
+    ..sort((a, b) => (a ?? 1 << 40).compareTo(b ?? 1 << 40));
+  return PopUpRow<int>(
+    key: const ValueKey('lock password delay'),
+    title: l.lockPasswordDelay,
+    items: [for (final c in choices) PopUpItem(c ?? -1, label(c))],
+    value: saved ?? -1,
+    onChanged: (v) {
+      config.writePasswordDelay(v < 0 ? null : v);
+      changed();
+    },
+  );
 }
 
 class PrivacyPane extends StatelessWidget {
