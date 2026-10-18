@@ -1,10 +1,11 @@
-// The files Ossido and silica-daemon read (keyboard, input, sound, power, focus), exactly as
-// docs/spec/shell-config.md lists them: ranges, kept keys, and broken input.
+// What Settings writes for Ossido and silica-daemon: keyboard.* and input.* of the Settings
+// service, and the files sound, power and focus: ranges, kept keys, and broken input.
 
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:silica_ui/silica_ui.dart';
 import 'package:silica_settings/src/system/config.dart';
 import 'package:silica_settings/src/system/settings_files.dart';
 
@@ -16,39 +17,32 @@ Object? file(ConfigStore c, String name) =>
     jsonDecode(File('${c.directory}/$name.json').readAsStringSync());
 
 void main() {
-  group('keyboard.json', () {
-    test('repeat values are clamped to Ossido\'s ranges', () {
-      final c = store()
-        ..writeRepeatDelay(5)
-        ..writeRepeatRate(500);
-      expect(file(c, 'keyboard'), {'repeatDelay': 100, 'repeatRate': 100});
-      c
-        ..writeRepeatDelay(99999)
-        ..writeRepeatRate(-3);
-      expect(file(c, 'keyboard'), {'repeatDelay': 3000, 'repeatRate': 0});
-      expect(c.savedRepeatRate, 0);
+  group('keyboard.* of the Settings service (silica-desktop#240)', () {
+    test('repeat values are clamped to Ossido\'s ranges', () async {
+      final backend = MemorySettingsBackend({});
+      final s = SilicaSettings(backend: backend);
+      await s.writeRepeatDelay(5);
+      await s.writeRepeatRate(500);
+      expect(backend.writes.last, 'keyboard.repeatRate');
+      expect(s.savedRepeatDelay, 100);
+      await s.writeRepeatDelay(99999);
+      await s.writeRepeatRate(-3);
+      expect(s.savedRepeatDelay, 3000);
+      expect(s.savedRepeatRate, 0);
     });
 
-    test('saved values missing or wrong are null', () {
-      final c = store();
-      expect(c.savedRepeatDelay, isNull);
-      c
-        ..write('keyboard', 'repeatDelay', 'fast')
-        ..write('keyboard', 'repeatRate', null);
-      expect(c.savedRepeatDelay, isNull);
-      expect(c.savedRepeatRate, isNull);
+    test('before the service answers the saved values are null', () {
+      final s = SilicaSettings(backend: MemorySettingsBackend({}));
+      expect(s.savedRepeatDelay, isNull);
+      expect(s.savedRepeatRate, isNull);
     });
 
-    test('layouts: at most four, empty removes the key, others are kept', () {
-      final c = store()..write('keyboard', 'options', 'caps:escape');
-      c.writeLayouts(['us', 'it', 'de(nodeadkeys)', 'fr', 'es']);
-      expect(file(c, 'keyboard'), {
-        'options': 'caps:escape',
-        'layouts': ['us', 'it', 'de(nodeadkeys)', 'fr'],
-      });
-      c.writeLayouts([]);
-      expect(file(c, 'keyboard'), {'options': 'caps:escape'});
-      expect(c.savedLayouts, isEmpty);
+    test('layouts: at most four, empty is xkb\'s default', () async {
+      final s = SilicaSettings(backend: MemorySettingsBackend({}));
+      await s.writeLayouts(['us', 'it', 'de(nodeadkeys)', 'fr', 'es']);
+      expect(s.savedLayouts, ['us', 'it', 'de(nodeadkeys)', 'fr']);
+      await s.writeLayouts([]);
+      expect(s.savedLayouts, isEmpty);
     });
 
     test('layout ids join and split on the variant', () {
@@ -59,46 +53,63 @@ void main() {
     });
   });
 
-  group('input.json', () {
-    test('one key of one device, the rest kept', () {
-      final c = store()
-        ..write('input', 'doubleClickMs', 400)
-        ..writePointer(PointerDevice.mouse, 'naturalScroll', true)
-        ..writePointer(PointerDevice.touchpad, 'tapToClick', true)
-        ..writePointerSpeed(PointerDevice.mouse, 0.456)
-        ..writeScrollSpeed(PointerDevice.touchpad, 25);
-      expect(file(c, 'input'), {
-        'doubleClickMs': 400,
-        'mouse': {'naturalScroll': true, 'speed': 0.46},
-        'touchpad': {'tapToClick': true, 'scrollSpeed': 10.0},
-      });
-      c.writePointer(PointerDevice.mouse, 'naturalScroll', null);
-      expect((file(c, 'input') as Map)['mouse'], {'speed': 0.46});
+  group('input.* of the Settings service (silica-desktop#240)', () {
+    test('one key of one device; null goes back to the default', () async {
+      final backend = MemorySettingsBackend({});
+      final s = SilicaSettings(backend: backend);
+      await s.writePointer(PointerDevice.mouse, 'naturalScroll', true);
+      await s.writePointer(PointerDevice.touchpad, 'tapToClick', true);
+      await s.writePointerSpeed(PointerDevice.mouse, 0.456);
+      await s.writeScrollSpeed(PointerDevice.touchpad, 25);
+      expect(
+        s.pointerFlag(PointerDevice.mouse, 'naturalScroll', fallback: false),
+        isTrue,
+      );
+      expect(s.pointerSpeed(PointerDevice.mouse), 0.46);
+      expect(s.pointerScrollSpeed(PointerDevice.touchpad), 10.0);
+      expect(backend.writes, [
+        'input.mouse.naturalScroll',
+        'input.touchpad.tapToClick',
+        'input.mouse.speed',
+        'input.touchpad.scrollSpeed',
+      ]);
+      await s.writePointer(PointerDevice.mouse, 'naturalScroll', null);
+      expect(backend.writes.last, 'input.mouse.naturalScroll');
+      expect(
+        s.pointerFlag(PointerDevice.mouse, 'naturalScroll', fallback: false),
+        isFalse,
+      );
     });
 
-    test('a value that is not a number writes nothing', () {
+    test('a value that is not a number writes nothing', () async {
+      final backend = MemorySettingsBackend({});
+      final s = SilicaSettings(backend: backend);
+      expect(
+        await s.writePointerSpeed(PointerDevice.mouse, double.nan),
+        isFalse,
+      );
+      expect(
+        await s.writeScrollSpeed(PointerDevice.mouse, double.infinity),
+        isFalse,
+      );
+      expect(backend.writes, isEmpty);
       final c = store();
-      expect(c.writePointerSpeed(PointerDevice.mouse, double.nan), isFalse);
-      expect(c.writeScrollSpeed(PointerDevice.mouse, double.infinity), isFalse);
       expect(c.writeAlertVolume(double.nan), isFalse);
-      expect(c.read('input'), isEmpty);
       expect(c.read('sound'), isEmpty);
     });
 
     test('reads fall back to the defaults', () {
-      final c = store()..write('input', 'mouse', 'broken');
-      expect(c.pointerSpeed(PointerDevice.mouse), 0);
-      expect(c.pointerScrollSpeed(PointerDevice.touchpad), 1);
+      final s = SilicaSettings.withValues({'input.mouse.speed': 'broken'});
+      expect(s.pointerSpeed(PointerDevice.mouse), 0);
+      expect(s.pointerScrollSpeed(PointerDevice.touchpad), 1);
       expect(
-        c.pointerFlag(
+        s.pointerFlag(
           PointerDevice.touchpad,
           'disableWhileTyping',
           fallback: true,
         ),
         isTrue,
       );
-      c.writePointer(PointerDevice.mouse, 'speed', 7);
-      expect(c.pointerSpeed(PointerDevice.mouse), 1);
     });
   });
 

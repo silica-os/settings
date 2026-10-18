@@ -1,8 +1,10 @@
-// The configuration files Ossido and silica-daemon read and Settings writes: keyboard.json
-// (key repeat and input sources), input.json (mouse and touchpad), sound.json (alerts), power.json
-// (display off, sleep) and focus.json (Focus modes). The contract is silica-desktop's
+// What Settings writes for Ossido and silica-daemon: the keyboard and the pointers in the
+// Settings service (`keyboard.*`, `input.*`, silica-desktop#240), and the files sound.json
+// (alerts), power.json (display off, sleep) and focus.json (Focus modes). The contract is silica-desktop's
 // docs/control.md and docs/daemon.md; each helper writes one key (or one device's key) and
 // keeps the rest, like [ConfigStore.write].
+
+import 'package:silica_ui/silica_ui.dart' show SilicaSettings;
 
 import 'config.dart';
 
@@ -45,104 +47,82 @@ abstract final class PointerLimits {
   static const double scrollMax = 10;
 }
 
-extension SettingsFiles on ConfigStore {
-  // keyboard.json ---------------------------------------------------------------------
+/// Ossido's keyboard and pointer settings in the Settings service (silica-desktop#240):
+/// `keyboard.*` and `input.*`. Each helper writes one key; the service checks it against its
+/// schema and Ossido applies it at once.
+extension OssidoSettings on SilicaSettings {
+  // keyboard.* ------------------------------------------------------------------------
 
-  /// The delay saved, in ms; null when the file has none (Ossido's default applies).
+  /// The delay saved, in ms; null before the service answered (Ossido's default applies).
   int? get savedRepeatDelay {
-    final v = read('keyboard')['repeatDelay'];
+    final v = raw('keyboard.repeatDelay');
     return v is num && v.isFinite
         ? v.round().clamp(KeyboardLimits.delayMin, KeyboardLimits.delayMax)
         : null;
   }
 
-  /// The repeat rate saved, per second (0: off); null when the file has none.
+  /// The repeat rate saved, per second (0: off); null before the service answered.
   int? get savedRepeatRate {
-    final v = read('keyboard')['repeatRate'];
+    final v = raw('keyboard.repeatRate');
     return v is num && v.isFinite
         ? v.round().clamp(0, KeyboardLimits.rateMax)
         : null;
   }
 
-  bool writeRepeatDelay(int ms) => write(
-    'keyboard',
-    'repeatDelay',
+  Future<bool> writeRepeatDelay(int ms) => set(
+    'keyboard.repeatDelay',
     ms.clamp(KeyboardLimits.delayMin, KeyboardLimits.delayMax),
   );
 
-  bool writeRepeatRate(int perSecond) => write(
-    'keyboard',
-    'repeatRate',
-    perSecond.clamp(0, KeyboardLimits.rateMax),
-  );
+  Future<bool> writeRepeatRate(int perSecond) =>
+      set('keyboard.repeatRate', perSecond.clamp(0, KeyboardLimits.rateMax));
 
   /// The input sources saved, in order; empty when Ossido uses xkb's default.
-  List<String> get savedLayouts {
-    final v = read('keyboard')['layouts'];
-    return v is List
-        ? [
-            for (final e in v)
-              if (e is String && e.isNotEmpty) e,
-          ].take(KeyboardLimits.maxLayouts).toList()
-        : const [];
-  }
+  List<String> get savedLayouts => [
+    for (final e in getTexts('keyboard.layouts'))
+      if (e.isNotEmpty) e,
+  ].take(KeyboardLimits.maxLayouts).toList();
 
-  /// Saves the input sources (at most four); an empty list removes the key.
-  bool writeLayouts(List<String> layouts) {
-    final list = layouts.take(KeyboardLimits.maxLayouts).toList();
-    return write('keyboard', 'layouts', list.isEmpty ? null : list);
-  }
+  /// Saves the input sources (at most four); empty: xkb's default.
+  Future<bool> writeLayouts(List<String> layouts) =>
+      set('keyboard.layouts', layouts.take(KeyboardLimits.maxLayouts).toList());
 
-  // input.json ------------------------------------------------------------------------
+  // input.* ---------------------------------------------------------------------------
 
-  Map<String, Object?> _device(PointerDevice device) {
-    final v = read('input')[device.name];
-    return v is Map ? {for (final e in v.entries) '${e.key}': e.value} : {};
-  }
+  String _pointerKey(PointerDevice device, String key) =>
+      'input.${device.name}.$key';
 
-  /// One key of one device, keeping the device's other keys and the other device.
-  bool writePointer(PointerDevice device, String key, Object? value) {
-    final input = read('input');
-    final entry = _device(device);
-    if (value == null) {
-      entry.remove(key);
-    } else {
-      entry[key] = value;
-    }
-    input[device.name] = entry;
-    return replace('input', input);
-  }
+  /// One key of one device; null goes back to the default.
+  Future<bool> writePointer(PointerDevice device, String key, Object? value) =>
+      value == null
+      ? reset(_pointerKey(device, key))
+      : set(_pointerKey(device, key), value);
 
-  double pointerSpeed(PointerDevice device) {
-    final v = _device(device)['speed'];
-    return v is num && v.isFinite
-        ? v.toDouble().clamp(PointerLimits.speedMin, PointerLimits.speedMax)
-        : 0;
-  }
+  double pointerSpeed(PointerDevice device) => getNumber(
+    _pointerKey(device, 'speed'),
+    fallback: 0,
+  ).clamp(PointerLimits.speedMin, PointerLimits.speedMax).toDouble();
 
-  double pointerScrollSpeed(PointerDevice device) {
-    final v = _device(device)['scrollSpeed'];
-    return v is num && v.isFinite
-        ? v.toDouble().clamp(PointerLimits.scrollMin, PointerLimits.scrollMax)
-        : 1;
-  }
+  double pointerScrollSpeed(PointerDevice device) => getNumber(
+    _pointerKey(device, 'scrollSpeed'),
+    fallback: 1,
+  ).clamp(PointerLimits.scrollMin, PointerLimits.scrollMax).toDouble();
 
-  bool pointerFlag(PointerDevice device, String key, {required bool fallback}) {
-    final v = _device(device)[key];
-    return v is bool ? v : fallback;
-  }
+  bool pointerFlag(
+    PointerDevice device,
+    String key, {
+    required bool fallback,
+  }) => getBool(_pointerKey(device, key), fallback: fallback);
 
   String pointerText(
     PointerDevice device,
     String key, {
     required String fallback,
-  }) {
-    final v = _device(device)[key];
-    return v is String ? v : fallback;
-  }
+  }) => getText(_pointerKey(device, key), fallback: fallback);
 
-  bool writePointerSpeed(PointerDevice device, double speed) => !speed.isFinite
-      ? false
+  Future<bool> writePointerSpeed(PointerDevice device, double speed) =>
+      !speed.isFinite
+      ? Future.value(false)
       : writePointer(
           device,
           'speed',
@@ -153,8 +133,9 @@ extension SettingsFiles on ConfigStore {
           ),
         );
 
-  bool writeScrollSpeed(PointerDevice device, double speed) => !speed.isFinite
-      ? false
+  Future<bool> writeScrollSpeed(PointerDevice device, double speed) =>
+      !speed.isFinite
+      ? Future.value(false)
       : writePointer(
           device,
           'scrollSpeed',
@@ -164,7 +145,9 @@ extension SettingsFiles on ConfigStore {
                 .toStringAsFixed(2),
           ),
         );
+}
 
+extension SettingsFiles on ConfigStore {
   // sound.json ------------------------------------------------------------------------
 
   double get alertVolume {

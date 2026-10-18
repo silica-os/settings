@@ -16,50 +16,46 @@ import 'pane_helpers.dart';
 
 void main() {
   group('Keyboard (#73)', () {
-    testWidgets('the sliders start from the session and write keyboard.json', (
-      tester,
-    ) async {
-      final h = await pumpSettings(
-        tester,
-        pane: PaneId.keyboard,
-        extraEnv: const {'OSSIDO_KEY_REPEAT': '250,30'},
-      );
-      AmalfiSlider slider(String key) =>
-          tester.widget<AmalfiSlider>(find.byKey(ValueKey(key)));
-      // 30 per second and 250 ms are the steps 6 and 5 of the sliders.
-      expect(slider('repeat rate').value, 6);
-      expect(slider('repeat delay').value, 5);
-      expect(slider('repeat rate').onChanged, isNotNull);
-      expect(h.config.read('keyboard'), isEmpty);
-      await dragSlider(
-        tester,
-        find.byKey(const ValueKey('repeat rate')),
-        const Offset(-400, 0),
-      );
-      await tester.pump();
-      expect(h.config.read('keyboard')['repeatRate'], 0);
-      await dragSlider(
-        tester,
-        find.byKey(const ValueKey('repeat delay')),
-        const Offset(-400, 0),
-      );
-      await tester.pump();
-      expect(h.config.read('keyboard')['repeatDelay'], 1500);
-      expect(slider('repeat delay').value, 0);
-      // The other keys of the file are kept.
-      h.config.write('keyboard', 'options', 'caps:escape');
-      await dragSlider(
-        tester,
-        find.byKey(const ValueKey('repeat rate')),
-        const Offset(400, 0),
-      );
-      await tester.pump();
-      expect(h.config.read('keyboard'), {
-        'repeatRate': 40,
-        'repeatDelay': 1500,
-        'options': 'caps:escape',
-      });
-    });
+    testWidgets(
+      'the sliders start from the session and set keyboard.* (#240)',
+      (tester) async {
+        final h = await pumpSettings(
+          tester,
+          pane: PaneId.keyboard,
+          extraEnv: const {'OSSIDO_KEY_REPEAT': '250,30'},
+        );
+        AmalfiSlider slider(String key) =>
+            tester.widget<AmalfiSlider>(find.byKey(ValueKey(key)));
+        // 30 per second and 250 ms are the steps 6 and 5 of the sliders.
+        expect(slider('repeat rate').value, 6);
+        expect(slider('repeat delay').value, 5);
+        expect(slider('repeat rate').onChanged, isNotNull);
+        expect(h.settings.writes, isEmpty);
+        await dragSlider(
+          tester,
+          find.byKey(const ValueKey('repeat rate')),
+          const Offset(-400, 0),
+        );
+        await tester.pump();
+        expect(h.settings.values['keyboard.repeatRate'], 0);
+        await dragSlider(
+          tester,
+          find.byKey(const ValueKey('repeat delay')),
+          const Offset(-400, 0),
+        );
+        await tester.pump();
+        expect(h.settings.values['keyboard.repeatDelay'], 1500);
+        expect(slider('repeat delay').value, 0);
+        await dragSlider(
+          tester,
+          find.byKey(const ValueKey('repeat rate')),
+          const Offset(400, 0),
+        );
+        await tester.pump();
+        expect(h.settings.values['keyboard.repeatRate'], 40);
+        expect(h.settings.values['keyboard.repeatDelay'], 1500);
+      },
+    );
 
     testWidgets('keyboard navigation goes to theme.json and the daemon', (
       tester,
@@ -101,17 +97,17 @@ void main() {
       }
 
       await add('it');
-      expect(h.config.read('keyboard')['layouts'], ['it']);
+      expect(h.settings.values['keyboard.layouts'], ['it']);
       await add('de', 'nodeadkeys');
-      expect(h.config.read('keyboard')['layouts'], ['it', 'de(nodeadkeys)']);
+      expect(h.settings.values['keyboard.layouts'], ['it', 'de(nodeadkeys)']);
       expect(find.text('German (no dead keys)'), findsOneWidget);
       await tapKey(tester, 'remove source it');
-      expect(h.config.read('keyboard')['layouts'], ['de(nodeadkeys)']);
+      expect(h.settings.values['keyboard.layouts'], ['de(nodeadkeys)']);
       // Four is the most: the fourth source disables Add.
       await add('us');
       await add('fr');
       await add('it');
-      expect(h.config.read('keyboard')['layouts'], [
+      expect(h.settings.values['keyboard.layouts'], [
         'de(nodeadkeys)',
         'us',
         'fr',
@@ -126,7 +122,7 @@ void main() {
       for (final id in ['de(nodeadkeys)', 'us', 'fr', 'it']) {
         await tapKey(tester, 'remove source $id');
       }
-      expect(h.config.read('keyboard').containsKey('layouts'), isFalse);
+      expect(h.settings.values['keyboard.layouts'], isEmpty);
     });
   });
 
@@ -232,11 +228,11 @@ void main() {
       await tapKey(tester, 'shortcuts');
       await tapKey(tester, 'shortcut category 3');
       await tapKey(tester, 'shortcut on window.minimize');
-      expect(h.config.read('shortcuts'), {'window.minimize': null});
+      expect(h.settings.values['shortcuts.window.minimize'], 'none');
       expect(find.text('None'), findsWidgets);
       await tapKey(tester, 'shortcut on window.minimize');
       expect(
-        h.config.read('shortcuts').containsKey('window.minimize'),
+        h.settings.values.containsKey('shortcuts.window.minimize'),
         isFalse,
       );
     });
@@ -248,13 +244,14 @@ void main() {
       await tapKey(tester, 'shortcuts');
       await tapKey(tester, 'shortcut category 3');
       await tapKey(tester, 'shortcut keys window.minimize');
-      expect(h.config.read('shortcuts')['capture'], isTrue);
+      expect(h.settings.values['shortcuts.capture'], isTrue);
       await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
       await tester.sendKeyDownEvent(LogicalKeyboardKey.keyN);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.keyN);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
       await tester.pump();
-      expect(h.config.read('shortcuts'), {'window.minimize': 'Logo+n'});
+      expect(h.settings.values['shortcuts.window.minimize'], 'Logo+n');
+      expect(h.settings.values['shortcuts.capture'], isFalse);
       expect(find.text('Logo N'), findsOneWidget);
     });
 
@@ -270,7 +267,7 @@ void main() {
       await tester.pump();
       expect(find.textContaining('Already used'), findsOneWidget);
       expect(
-        h.config.read('shortcuts').containsKey('window.minimize'),
+        h.settings.values.containsKey('shortcuts.window.minimize'),
         isFalse,
       );
     });
@@ -293,14 +290,12 @@ void main() {
     AmalfiSlider slider(WidgetTester tester, String key) =>
         tester.widget<AmalfiSlider>(sliderIn(key));
 
-    testWidgets('Mouse writes the mouse object of input.json', (tester) async {
+    testWidgets('Mouse sets input.mouse.* (#240)', (tester) async {
       final h = await pumpSettings(tester, pane: PaneId.mouse, height: 900);
       expect(slider(tester, 'mouse speed').value, 0);
       await dragSlider(tester, sliderIn('mouse speed'), const Offset(400, 0));
       await tester.pump();
-      expect(h.config.read('input'), {
-        'mouse': {'speed': 1.0},
-      });
+      expect(h.settings.values['input.mouse.speed'], 1.0);
       await tester.tap(switchIn('mouse natural scrolling'));
       await tester.pump();
       await choose(tester, 'mouse secondary click', 'Left button');
@@ -310,13 +305,11 @@ void main() {
         const Offset(400, 0),
       );
       await tester.pump();
-      expect(h.config.read('input'), {
-        'mouse': {
-          'speed': 1.0,
-          'naturalScroll': true,
-          'secondaryClick': 'left',
-          'scrollSpeed': 10.0,
-        },
+      expect(h.settings.values, {
+        'input.mouse.speed': 1.0,
+        'input.mouse.naturalScroll': true,
+        'input.mouse.secondaryClick': 'left',
+        'input.mouse.scrollSpeed': 10.0,
       });
       await dragSlider(
         tester,
@@ -324,8 +317,7 @@ void main() {
         const Offset(-800, 0),
       );
       await tester.pump();
-      final input = h.config.read('input')['mouse'] as Map;
-      expect(input['scrollSpeed'], 0.1);
+      expect(h.settings.values['input.mouse.scrollSpeed'], 0.1);
       expect(find.textContaining('Not available yet in Silica'), findsNothing);
     });
 
@@ -393,16 +385,14 @@ void main() {
       expect(h.navigation.pane, PaneId.wifi);
     });
 
-    testWidgets('Trackpad writes the touchpad object of input.json', (
-      tester,
-    ) async {
+    testWidgets('Trackpad sets input.touchpad.* (#240)', (tester) async {
       final h = await pumpSettings(
         tester,
         system: FakeSystem(const SystemState(reachable: true, touchpad: true)),
         pane: PaneId.trackpad,
         height: 1000,
       );
-      h.config.write('input', 'mouse', {'speed': 0.5});
+      h.settings.values['input.mouse.speed'] = 0.5;
       await tester.tap(switchIn('touchpad tap to click'));
       await tester.pump();
       await tester.tap(switchIn('touchpad disable while typing'));
@@ -420,15 +410,13 @@ void main() {
         const Offset(-400, 0),
       );
       await tester.pump();
-      expect(h.config.read('input'), {
-        'mouse': {'speed': 0.5},
-        'touchpad': {
-          'tapToClick': true,
-          'disableWhileTyping': false,
-          'naturalScroll': true,
-          'secondaryClick': 'bottomRight',
-          'speed': -1.0,
-        },
+      expect(h.settings.values, {
+        'input.mouse.speed': 0.5,
+        'input.touchpad.tapToClick': true,
+        'input.touchpad.disableWhileTyping': false,
+        'input.touchpad.naturalScroll': true,
+        'input.touchpad.secondaryClick': 'bottomRight',
+        'input.touchpad.speed': -1.0,
       });
     });
   });
@@ -494,8 +482,8 @@ void main() {
     );
     pointer.onChanged!(48.4);
     await tester.pump();
-    // Ossido reads theme.json; the daemon is not involved.
-    expect(h.config.read('theme')['cursorSize'], 48);
+    // Ossido follows the Settings service's key; the look is not involved.
+    expect(h.settings.values['accessibility.cursorSize'], 48);
     expect(h.system.calls.last, 'setLook {textScale: 1.3}');
   });
 

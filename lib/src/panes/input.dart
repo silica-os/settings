@@ -87,7 +87,7 @@ class _KeyboardPaneState extends State<KeyboardPane> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final services = ServicesScope.of(context);
-    final config = services.config;
+    final config = services.settings;
     final (fallbackDelay, fallbackRate) = _fallback(services.env);
     final delay = config.savedRepeatDelay ?? fallbackDelay;
     final rate = config.savedRepeatRate ?? fallbackRate;
@@ -254,17 +254,17 @@ class _SourcesSheetState extends State<_SourcesSheet> {
       if (chosen == null || !mounted) return;
       variant = chosen;
     }
-    final sources = services.config.savedLayouts;
+    final sources = services.settings.savedLayouts;
     final id = layoutId(layout, variant);
     if (sources.contains(id) || sources.length >= KeyboardLimits.maxLayouts) {
       return;
     }
-    services.config.writeLayouts([...sources, id]);
+    services.settings.writeLayouts([...sources, id]);
     setState(() {});
   }
 
   void _remove(String id) {
-    final config = ServicesScope.of(context).config;
+    final config = ServicesScope.of(context).settings;
     config.writeLayouts([
       for (final s in config.savedLayouts)
         if (s != id) s,
@@ -276,7 +276,7 @@ class _SourcesSheetState extends State<_SourcesSheet> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final colors = SettingsColors.of(context);
-    final sources = ServicesScope.of(context).config.savedLayouts;
+    final sources = ServicesScope.of(context).settings.savedLayouts;
     final full = sources.length >= KeyboardLimits.maxLayouts;
     return SizedBox(
       width: 460,
@@ -458,7 +458,7 @@ List<(String, List<SystemShortcut>)> systemShortcuts(AppLocalizations l) => [
 Future<void> showShortcuts(BuildContext context) {
   final l = AppLocalizations.of(context);
   final categories = systemShortcuts(l);
-  final bindings = ShortcutBindings(ServicesScope.of(context).config);
+  final bindings = ShortcutBindings(ServicesScope.of(context).settings);
   return showAmalfiSheet<void>(
     context,
     semanticLabel: l.keyboardShortcutsButton,
@@ -737,7 +737,7 @@ List<Widget> _commonPointerRows(
   VoidCallback changed,
 ) {
   final l = AppLocalizations.of(context);
-  final config = ServicesScope.of(context).config;
+  final config = ServicesScope.of(context).settings;
   return [
     SliderRow(
       key: ValueKey('${device.name} speed'),
@@ -772,7 +772,7 @@ Widget _scrollSpeedRow(
   VoidCallback changed,
 ) {
   final l = AppLocalizations.of(context);
-  final config = ServicesScope.of(context).config;
+  final config = ServicesScope.of(context).settings;
   return SliderRow(
     key: ValueKey('${device.name} scroll speed'),
     title: l.mouseScrollSpeed,
@@ -797,7 +797,7 @@ class _MousePaneState extends State<MousePane> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final services = ServicesScope.of(context);
-    final config = services.config;
+    final config = services.settings;
     void changed() => setState(() {});
     final secondary = MouseSecondary.values
         .where(
@@ -875,7 +875,7 @@ class _TrackpadPaneState extends State<TrackpadPane> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final config = ServicesScope.of(context).config;
+    final config = ServicesScope.of(context).settings;
     void changed() => setState(() {});
     final secondary = TouchpadSecondary.values
         .where(

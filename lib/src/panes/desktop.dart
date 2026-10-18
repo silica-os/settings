@@ -18,7 +18,6 @@ import '../model/panes.dart';
 import '../services.dart';
 import '../style.dart';
 import '../system/amalfi_wallpapers.dart';
-import '../system/config.dart';
 import '../system/shell_config.dart';
 import '../system/tools.dart';
 import '../ui/errors.dart';
@@ -260,6 +259,7 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
       'dock.magnifiedSize',
       'dock.launchAnimation',
       'dock.minimizeToApp',
+      'dock.titleBarDoubleClick',
     ])..addListener(_changed);
   }
 
@@ -295,23 +295,10 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
     }
   }
 
-  /// A value of the Dock's JSON file that Ossido reads (the title bar double click).
-  T _named<T extends Enum>(
-    ConfigStore config,
-    String key,
-    List<T> values,
-    T fallback,
-  ) =>
-      values
-          .where((v) => v.name == config.text('dock', key, fallback: ''))
-          .firstOrNull ??
-      fallback;
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final services = ServicesScope.of(context);
-    final config = services.config;
     final settings = services.settings;
     // The shell's defaults (shell/lib/dock/options.dart).
     bool flag(String key, bool fallback) =>
@@ -338,11 +325,10 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
       MinimizeEffect.values,
       fallback: MinimizeEffect.genie,
     );
-    final doubleClick = _named(
-      config,
-      'titleBarDoubleClick',
+    final doubleClick = settings.getEnum(
+      'dock.titleBarDoubleClick',
       TitleBarAction.values,
-      TitleBarAction.zoom,
+      fallback: TitleBarAction.zoom,
     );
     final browsers = [
       ..._browsers,
@@ -429,9 +415,7 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
                 PopUpItem(TitleBarAction.none, l.dockDoubleClickNothing),
               ],
               value: doubleClick,
-              onChanged: (v) => setState(
-                () => config.write('dock', 'titleBarDoubleClick', v.name),
-              ),
+              onChanged: (v) => set('titleBarDoubleClick', v.name),
             ),
             SwitchRow(
               key: const ValueKey('dock minimize into icon'),
@@ -561,21 +545,23 @@ enum HotCorner {
   search,
 }
 
-/// The four corners, with the hotcorners.json key of each.
+/// The four corners, with the Settings service key of each (`hotcorners.<corner>`).
 enum CornerPlace { topLeft, topRight, bottomLeft, bottomRight }
 
-/// The action of [place] in hotcorners.json; none when missing or unknown.
-HotCorner hotCornerOf(ConfigStore config, CornerPlace place) =>
-    HotCorner.values
-        .where((c) => c.name == config.read('hotcorners')[place.name])
-        .firstOrNull ??
-    HotCorner.none;
+/// The action of [place] (`hotcorners.<corner>` of the Settings service, which Ossido
+/// follows); none when unknown.
+HotCorner hotCornerOf(SilicaSettings settings, CornerPlace place) =>
+    settings.getEnum(
+      'hotcorners.${place.name}',
+      HotCorner.values,
+      fallback: HotCorner.none,
+    );
 
 /// The hot corners sheet (ST-DSK-04): 711 × 193, four 269 × 24 pop-ups around a 100 × 69
 /// desktop preview, Done. Ossido runs the chosen action when the pointer reaches the corner.
 Future<void> showHotCorners(BuildContext context) {
   final l = AppLocalizations.of(context);
-  final config = ServicesScope.of(context).config;
+  final settings = ServicesScope.of(context).settings;
   String label(HotCorner c) => switch (c) {
     HotCorner.none => l.hotCornerNone,
     HotCorner.panorama => l.hotCornerPanorama,
@@ -602,16 +588,13 @@ Future<void> showHotCorners(BuildContext context) {
                 for (final c in HotCorner.values)
                   AmalfiPopUpItem<HotCorner>(value: c, label: label(c)),
               ],
-              value: hotCornerOf(config, place),
+              value: hotCornerOf(settings, place),
               size: AmalfiControlSize.small,
               width: 269,
               semanticLabel: place.name,
               onChanged: (c) => setState(
-                () => config.write(
-                  'hotcorners',
-                  place.name,
-                  c == HotCorner.none ? null : c.name,
-                ),
+                () =>
+                    unawaited(settings.set('hotcorners.${place.name}', c.name)),
               ),
             ),
           );

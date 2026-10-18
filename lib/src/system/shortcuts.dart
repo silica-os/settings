@@ -1,11 +1,12 @@
 // The system keyboard shortcuts (Keyboard › Keyboard Shortcuts): a key combination for a
-// command of silica-desktop's catalog, in `shortcuts.json`, which Ossido watches and applies at
-// once (docs/control.md › shortcuts.json). A command listed there with a text gets those keys,
-// with `null` it has none, and a command left out keeps the catalog's default.
+// command of silica-desktop's catalog, in the Settings service (`shortcuts.<command id>`,
+// silica-desktop#240), which Ossido follows and applies at once (docs/control.md › shortcuts.*).
+// A command with keys gets them, with `none` it has none, and one not set keeps the catalog's
+// default.
 
 import 'package:flutter/services.dart';
 
-import 'config.dart';
+import 'package:silica_ui/silica_ui.dart' show SilicaSettings;
 
 /// A key combination in the catalog's format: `Logo+Shift+Q`, the modifiers (Logo, Ctrl, Alt,
 /// Shift) and the xkb name of the key.
@@ -172,42 +173,39 @@ KeyCombo? comboOfPress(
   return KeyCombo(logo: logo, ctrl: ctrl, alt: alt, shift: shift, key: name);
 }
 
-/// The reading and writing of `shortcuts.json`.
+/// The shortcuts of the Settings service (silica-desktop#240): `shortcuts.<command id>` is the
+/// user's keys, `none` for none; not set, the catalog's. Ossido follows them at once.
 class ShortcutBindings {
-  ShortcutBindings(this.config);
+  ShortcutBindings(this.settings);
 
-  final ConfigStore config;
+  final SilicaSettings settings;
 
-  static const file = 'shortcuts';
+  static const String prefix = 'shortcuts.';
+
+  /// The value that switches a command's shortcut off.
+  static const String off = 'none';
 
   /// The keys of [id] now: the user's, none (switched off) or the catalog's [fallback].
   KeyCombo? keys(String id, String? fallback) {
-    final all = config.read(file);
-    if (all.containsKey(id)) {
-      final v = all[id];
-      if (v is String) {
-        final combo = KeyCombo.parse(v);
-        if (combo != null) return combo;
-      } else if (v == null) {
-        return null;
-      }
+    final v = settings.raw('$prefix$id');
+    if (v is String && v.isNotEmpty) {
+      if (v == off) return null;
+      final combo = KeyCombo.parse(v);
+      if (combo != null) return combo;
     }
     return fallback == null ? null : KeyCombo.parse(fallback);
   }
 
   /// Gives [id] these keys.
-  bool set(String id, KeyCombo combo) => config.write(file, id, combo.text);
+  Future<bool> set(String id, KeyCombo combo) =>
+      settings.set('$prefix$id', combo.text);
 
-  /// Switches the shortcut of [id] off (an explicit `null`, so the default does not return).
-  bool switchOff(String id) {
-    final all = config.read(file);
-    all[id] = null;
-    return config.replace(file, all);
-  }
+  /// Switches the shortcut of [id] off (`none`, so the default does not return).
+  Future<bool> switchOff(String id) => settings.set('$prefix$id', off);
 
   /// Back to the catalog's default.
-  bool reset(String id) => config.write(file, id, null);
+  Future<bool> reset(String id) => settings.reset('$prefix$id');
 
   /// Ossido lets every key reach Settings while a new combination is recorded.
-  void capture(bool on) => config.write(file, 'capture', on ? true : null);
+  Future<bool> capture(bool on) => settings.set('${prefix}capture', on);
 }

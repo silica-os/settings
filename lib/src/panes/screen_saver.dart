@@ -1,5 +1,5 @@
 // The Screen Saver sheet (ST-SSV-01), opened from Wallpaper: which saver the shell draws and
-// how long the computer is idle before it starts (screensaver.json, which Ossido watches; the
+// how long the computer is idle before it starts (`screensaver.*` of the Settings service, which Ossido follows; the
 // shell draws the saver). The lock screen's password delay counts from the moment it starts.
 
 import 'package:flutter/widgets.dart';

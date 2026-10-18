@@ -125,10 +125,8 @@ void main() {
     ) async {
       final h = await pumpSettings(tester, pane: PaneId.desktopDock);
       await choose(tester, 'dock double click', 'Minimise');
-      expect(
-        h.config.text('dock', 'titleBarDoubleClick', fallback: ''),
-        'minimize',
-      );
+      // The Settings service's key, which Ossido and silica_ui follow (#240).
+      expect(h.settings.values['dock.titleBarDoubleClick'], 'minimize');
     });
 
     testWidgets('the minimize effect and the position', (tester) async {
@@ -161,9 +159,7 @@ void main() {
       expect(h.tools.calls, contains('browser chromium.desktop'));
     });
 
-    testWidgets('a hot corner action is written to hotcorners.json', (
-      tester,
-    ) async {
+    testWidgets('a hot corner action sets hotcorners.* (#240)', (tester) async {
       final h = await pumpSettings(
         tester,
         pane: PaneId.desktopDock,
@@ -172,12 +168,13 @@ void main() {
       await tapKey(tester, 'hot corners');
       await choose(tester, 'hot corner topLeft', 'Panorama');
       await choose(tester, 'hot corner bottomRight', 'Show desktop');
-      expect(h.config.read('hotcorners'), {
-        'topLeft': 'panorama',
-        'bottomRight': 'desktop',
+      expect(h.settings.values, {
+        'hotcorners.topLeft': 'panorama',
+        'hotcorners.bottomRight': 'desktop',
       });
       await choose(tester, 'hot corner topLeft', '—');
-      expect(h.config.read('hotcorners'), {'bottomRight': 'desktop'});
+      expect(h.settings.values['hotcorners.topLeft'], 'none');
+      expect(h.settings.values['hotcorners.bottomRight'], 'desktop');
     });
 
     testWidgets('the hot corners sheet opens and closes', (tester) async {

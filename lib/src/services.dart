@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/widgets.dart';
 import 'package:silica_ui/silica_ui.dart';
 
@@ -121,12 +122,26 @@ class Services {
        ),
        textScale = ValueNotifier(_textScale(config.read('theme')['textScale'])),
        cursorSize = ValueNotifier(
-         _cursorSize(config.read('theme')['cursorSize']),
+         _cursorSize((settings ?? SilicaSettings.instance).raw(cursorSizeKey)),
        ),
        glass = ValueNotifier(_glassLevel(config.read('theme')['glass'])) {
     // This window and the apps that start now draw with the saved look at once.
     SilicaSystemLook.apply(systemLook);
+    // The pointer size is a key of the Settings service: it follows the value read, or set
+    // elsewhere, while the window is open.
+    _cursorSetting = this.settings.integer(
+      cursorSizeKey,
+      fallback: cursorSizeDefault,
+    )..addListener(_cursorSettingChanged);
   }
+
+  /// The Settings service key of the pointer size (Ossido follows it, silica-desktop#240).
+  static const String cursorSizeKey = 'accessibility.cursorSize';
+
+  late final ValueListenable<int> _cursorSetting;
+
+  void _cursorSettingChanged() =>
+      cursorSize.value = _cursorSize(_cursorSetting.value);
 
   final SystemBackend system;
   final ConfigStore config;
@@ -186,7 +201,7 @@ class Services {
   /// The style of icons and widgets (theme.json `iconStyle`).
   final ValueNotifier<IconStyle> iconStyle;
 
-  /// How tinted the glass is, 0 clear to 1 tinted (theme.json `glass`; Ossido draws it).
+  /// How tinted the glass is, 0 clear to 1 tinted (theme.json `glass`, told to silica-daemon; Ossido follows the look).
   final ValueNotifier<double> glass;
 
   /// Tab reaches every control (theme.json `keyboardNavigation`).
@@ -208,7 +223,7 @@ class Services {
   /// The size of the apps' text relative to the design's (theme.json `textScale`, 1–1.5).
   final ValueNotifier<double> textScale;
 
-  /// The pointer's size (theme.json `cursorSize`; Ossido draws the cursor at that size).
+  /// The pointer's size (`accessibility.cursorSize`; Ossido draws the cursor at that size).
   final ValueNotifier<int> cursorSize;
 
   static const int doubleClickSlowest = 1000;
@@ -330,12 +345,12 @@ class Services {
     _saveLook('textScale', scale);
   }
 
-  /// Ossido watches theme.json: no daemon call, the apps do not draw the pointer.
+  /// Ossido follows the Settings service's key; the apps do not draw the pointer.
   void setCursorSize(int value) {
     final size = _cursorSize(value);
     if (size == cursorSize.value) return;
     cursorSize.value = size;
-    config.write('theme', 'cursorSize', size);
+    unawaited(settings.set(cursorSizeKey, size));
   }
 
   void setDoubleClickMs(int value) {
