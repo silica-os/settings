@@ -50,8 +50,8 @@ map linearly onto the integer range. `magnify: false` ignores `magnifiedSize`.
 | `bluetooth` | bool | `false` | written |
 | `battery` | bool | `true` | written |
 | `batteryPercent` | bool (only meaningful with `battery`) | `false` | written |
-| `autohide` | `"never"` \| `"fullscreen"` \| `"always"` | `"fullscreen"` | not wired |
-| `background` | bool (the bar's translucent background) | `true` | not wired |
+| `autohide` | `"never"` \| `"fullscreen"` \| `"always"` | `"fullscreen"` | written (the shell reads it live; the bar comes back at the top edge) |
+| `background` | bool (the bar's translucent background) | `false` (the reference bar is bare) | written (the shell reads it live) |
 | `recentItems` | integer, one of 0, 5, 10, 15, 20, 30, 50 (how many recent apps and documents the logo menu lists) | `10` | written |
 | `clock` | object, below | see below | written (the shell reads it live) |
 

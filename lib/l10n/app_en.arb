@@ -832,5 +832,6 @@
   "shortcutRightHalf": "Right half of the screen",
   "shortcutTopHalf": "Top half of the screen",
   "shortcutBottomHalf": "Bottom half of the screen",
-  "shortcutNextSource": "Next input source"
+  "shortcutNextSource": "Next input source",
+  "menuBarHideAlways": "Always"
 }

@@ -88,6 +88,13 @@ class _MenuBarPaneState extends State<MenuBarPane> {
             )
             .firstOrNull ??
         SoundItem.active;
+    final autohide =
+        MenuBarAutohide.values
+            .where(
+              (v) => v.name == config.text('menubar', 'autohide', fallback: ''),
+            )
+            .firstOrNull ??
+        MenuBarAutohide.fullscreen;
     final bluetooth = config.flag('menubar', 'bluetooth', fallback: false);
     final battery = config.flag('menubar', 'battery', fallback: true);
     final percent = config.flag('menubar', 'batteryPercent', fallback: false);
@@ -101,16 +108,25 @@ class _MenuBarPaneState extends State<MenuBarPane> {
       builder: (context, state) => PanePage(
         children: [
           SettingsGroup(
-            unavailable: true,
-            issue: Issues.menuBar,
+            footer: l.menuBarLive,
             children: [
-              PopUpRow<int>(
+              PopUpRow<MenuBarAutohide>(
+                key: const ValueKey('menubar autohide'),
                 title: l.menuBarAutoHide,
-                items: [PopUpItem(0, l.menuBarInFullScreen)],
-                value: 0,
-                onChanged: (_) {},
+                items: [
+                  PopUpItem(MenuBarAutohide.never, l.menuBarNever),
+                  PopUpItem(MenuBarAutohide.fullscreen, l.menuBarInFullScreen),
+                  PopUpItem(MenuBarAutohide.always, l.menuBarHideAlways),
+                ],
+                value: autohide,
+                onChanged: (v) => set('autohide', v.name),
               ),
-              SwitchRow(title: l.menuBarBackground, value: false),
+              SwitchRow(
+                key: const ValueKey('menubar background'),
+                title: l.menuBarBackground,
+                value: config.flag('menubar', 'background', fallback: false),
+                onChanged: (v) => set('background', v),
+              ),
             ],
           ),
           SettingsGroup(

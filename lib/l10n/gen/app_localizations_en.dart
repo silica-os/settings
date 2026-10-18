@@ -2007,4 +2007,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shortcutNextSource => 'Next input source';
+
+  @override
+  String get menuBarHideAlways => 'Always';
 }

@@ -209,6 +209,19 @@ void main() {
     expect(h.config.flag('menubar', 'batteryPercent', fallback: false), isTrue);
   });
 
+  testWidgets('Menu Bar: auto-hide and the background are written', (
+    tester,
+  ) async {
+    final h = await pumpSettings(tester, pane: PaneId.menuBar);
+    await choose(tester, 'menubar autohide', 'Always');
+    expect(h.config.text('menubar', 'autohide', fallback: ''), 'always');
+    await choose(tester, 'menubar autohide', 'Never');
+    expect(h.config.text('menubar', 'autohide', fallback: ''), 'never');
+    await tester.tap(switchIn('menubar background'));
+    await tester.pump();
+    expect(h.config.flag('menubar', 'background', fallback: false), isTrue);
+  });
+
   testWidgets('Menu Bar: the recent items count is written', (tester) async {
     final h = await pumpSettings(tester, pane: PaneId.menuBar);
     await choose(tester, 'menubar recent items', '20');

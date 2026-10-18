@@ -621,5 +621,6 @@
   "shortcutRightHalf": "Metà destra dello schermo",
   "shortcutTopHalf": "Metà superiore dello schermo",
   "shortcutBottomHalf": "Metà inferiore dello schermo",
-  "shortcutNextSource": "Fonte di input successiva"
+  "shortcutNextSource": "Fonte di input successiva",
+  "menuBarHideAlways": "Sempre"
 }

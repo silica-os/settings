@@ -2013,4 +2013,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get shortcutNextSource => 'Fonte di input successiva';
+
+  @override
+  String get menuBarHideAlways => 'Sempre';
 }

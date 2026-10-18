@@ -3787,6 +3787,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next input source'**
   String get shortcutNextSource;
+
+  /// No description provided for @menuBarHideAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get menuBarHideAlways;
 }
 
 class _AppLocalizationsDelegate

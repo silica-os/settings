@@ -4,9 +4,9 @@
 //
 // The keys marked "not wired" are written by these helpers as soon as the shell reads them
 // and the matching control is enabled (AGENTS.md › Never fake): until then the controls stay
-// disabled and Settings writes nothing for them. Wired today: the Dock's `launchAnimation` and `minimizeToApp`,
-// the menu bar's `clock` and `recentItems`, the notification previews, grouping and
-// `showInCenter`, the wallpaper `fit`.
+// disabled and Settings writes nothing for them. Wired today: the Dock's `launchAnimation`
+// and `minimizeToApp`, the menu bar's `clock`, `recentItems`, `autohide` and `background`,
+// the notification previews, grouping and `showInCenter`, the wallpaper `fit`.
 
 import 'config.dart';
 
@@ -35,7 +35,7 @@ abstract final class DockSizes {
 /// Whether the Dock's icon bounces while an app opens (dock.json `launchAnimation`).
 enum LaunchAnimation { bounce, none }
 
-/// When the menu bar hides (menubar.json `autohide`; not wired).
+/// When the menu bar hides (menubar.json `autohide`).
 enum MenuBarAutohide { never, fullscreen, always }
 
 /// Counts offered for the recent items (menubar.json `recentItems`).
