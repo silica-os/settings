@@ -1,9 +1,12 @@
 // Keyboard, Users, Printers, the panes waiting for a backend, and every pane building.
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silica_settings/src/model/panes.dart';
 import 'package:silica_settings/src/panes/input.dart';
+import 'package:silica_settings/src/system/shortcuts.dart';
+import 'package:silica_settings/src/system/shell_config.dart';
 import 'package:silica_settings/src/system/system.dart';
 import 'package:silica_settings/src/system/tools.dart';
 import 'package:silica_ui/silica_ui.dart';
@@ -135,6 +138,151 @@ void main() {
     expect(find.text('Logo ⇧ 3'), findsOneWidget);
     await tapKey(tester, 'shortcut category 2');
     expect(find.text('Logo Space'), findsOneWidget);
+  });
+
+  group('Text replacements (#32)', () {
+    testWidgets('the list is edited and sent to the daemon', (tester) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard, height: 900);
+      h.system.current = const SystemState(
+        reachable: true,
+        textReplacements: [('omw', 'On my way!')],
+      );
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('text replacements')),
+      );
+      await tapRowButton(tester, 'text replacements');
+      await tester.pump();
+      expect(
+        find.byKey(const ValueKey('replacement shortcut 0')),
+        findsOneWidget,
+      );
+      // A new row: nothing is sent while it is incomplete.
+      await tapKey(tester, 'replacement add');
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement shortcut 1')),
+        'addr',
+      );
+      await tester.pump();
+      expect(find.text('Needs both texts.'), findsOneWidget);
+      expect(
+        h.system.calls.where((c) => c.startsWith('setTextReplacements')),
+        isEmpty,
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement phrase 1')),
+        '1 Main St',
+      );
+      await tester.pump();
+      expect(
+        h.system.calls.last,
+        'setTextReplacements [(omw, On my way!), (addr, 1 Main St)]',
+      );
+      // A repeated shortcut is flagged and not sent.
+      await tapKey(tester, 'replacement add');
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement shortcut 2')),
+        'omw',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement phrase 2')),
+        'again',
+      );
+      await tester.pump();
+      expect(find.text('Already used.'), findsOneWidget);
+      expect(
+        h.system.calls.last,
+        'setTextReplacements [(omw, On my way!), (addr, 1 Main St)]',
+      );
+      // Removing the first row sends the rest.
+      await tapKey(tester, 'replacement remove 0');
+      await tester.pump();
+      expect(
+        h.system.calls.last,
+        'setTextReplacements [(addr, 1 Main St), (omw, again)]',
+      );
+    });
+
+    testWidgets('the daemon refusing is told', (tester) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard, height: 900);
+      h.system.replacementsError = 'no silica-daemon';
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('text replacements')),
+      );
+      await tapRowButton(tester, 'text replacements');
+      await tester.pump();
+      await tapKey(tester, 'replacement add');
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement shortcut 0')),
+        'a',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement phrase 0')),
+        'b',
+      );
+      await tester.pump();
+      expect(find.text('no silica-daemon'), findsOneWidget);
+    });
+  });
+
+  group('Keyboard shortcuts (#20)', () {
+    testWidgets('a shortcut is switched off and back to its default', (
+      tester,
+    ) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard);
+      await tapKey(tester, 'shortcuts');
+      await tapKey(tester, 'shortcut category 3');
+      await tapKey(tester, 'shortcut on window.minimize');
+      expect(h.config.read('shortcuts'), {'window.minimize': null});
+      expect(find.text('None'), findsWidgets);
+      await tapKey(tester, 'shortcut on window.minimize');
+      expect(
+        h.config.read('shortcuts').containsKey('window.minimize'),
+        isFalse,
+      );
+    });
+
+    testWidgets('new keys are recorded while Ossido lets them through', (
+      tester,
+    ) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard);
+      await tapKey(tester, 'shortcuts');
+      await tapKey(tester, 'shortcut category 3');
+      await tapKey(tester, 'shortcut keys window.minimize');
+      expect(h.config.read('shortcuts')['capture'], isTrue);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.keyN);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.keyN);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+      await tester.pump();
+      expect(h.config.read('shortcuts'), {'window.minimize': 'Logo+n'});
+      expect(find.text('Logo N'), findsOneWidget);
+    });
+
+    testWidgets('a combination in use is refused', (tester) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard);
+      await tapKey(tester, 'shortcuts');
+      await tapKey(tester, 'shortcut category 3');
+      await tapKey(tester, 'shortcut keys window.minimize');
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.keyW);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.keyW);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+      await tester.pump();
+      expect(find.textContaining('Already used'), findsOneWidget);
+      expect(
+        h.config.read('shortcuts').containsKey('window.minimize'),
+        isFalse,
+      );
+    });
+
+    test('combinations read and write the catalog format', () {
+      final combo = KeyCombo.parse('Logo+Ctrl+Shift+3');
+      expect(combo?.text, 'Logo+Ctrl+Shift+3');
+      expect(combo?.display, 'Logo ⌃ ⇧ 3');
+      expect(KeyCombo.parse('Hyper+Q'), isNull);
+      expect(const KeyCombo(key: 'a').isUsable, isFalse);
+      expect(const KeyCombo(key: 'F5').isUsable, isTrue);
+    });
   });
 
   group('Mouse and Trackpad (#74)', () {
@@ -307,6 +455,68 @@ void main() {
     await tester.tap(switchIn('reduce motion'));
     await tester.pump();
     expect(h.config.read('theme')['reduceMotion'], false);
+    h.navigation.openPane(PaneId.accessibility);
+    await tester.pump();
+    await tapKey(tester, 'accessibility display');
+    await tester.tap(switchIn('increase contrast'));
+    await tester.pump();
+    expect(h.config.read('theme')['increaseContrast'], true);
+    expect(h.system.calls.last, 'setLook {increaseContrast: true}');
+    expect(SilicaSystemLook.current.increaseContrast, isTrue);
+  });
+
+  testWidgets('Accessibility: Larger Text and the pointer size', (
+    tester,
+  ) async {
+    final h = await pumpSettings(tester, pane: PaneId.accessibility);
+    await tapKey(tester, 'accessibility larger text');
+    expect(h.navigation.location.sub, SubPaneId.accessibilityLargerText);
+    final text = tester.widget<AmalfiSlider>(
+      find.descendant(
+        of: find.byKey(const ValueKey('text size')),
+        matching: find.byType(AmalfiSlider),
+      ),
+    );
+    text.onChanged!(1.3);
+    await tester.pump();
+    expect(h.config.read('theme')['textScale'], 1.3);
+    expect(h.system.calls.last, 'setLook {textScale: 1.3}');
+    expect(SilicaSystemLook.current.textScale, 1.3);
+    SilicaSystemLook.apply(const SystemLook());
+    h.navigation.openPane(PaneId.accessibility);
+    await tester.pump();
+    await tapKey(tester, 'accessibility display');
+    final pointer = tester.widget<AmalfiSlider>(
+      find.descendant(
+        of: find.byKey(const ValueKey('pointer size')),
+        matching: find.byType(AmalfiSlider),
+      ),
+    );
+    pointer.onChanged!(48.4);
+    await tester.pump();
+    // Ossido reads theme.json; the daemon is not involved.
+    expect(h.config.read('theme')['cursorSize'], 48);
+    expect(h.system.calls.last, 'setLook {textScale: 1.3}');
+  });
+
+  testWidgets('Lock Screen: the password delay and the user are written', (
+    tester,
+  ) async {
+    final h = await pumpSettings(tester, pane: PaneId.lockScreen, height: 900);
+    // The reference machine's 15 minutes until the user says otherwise.
+    expect(h.config.passwordDelay(), 900);
+    await choose(tester, 'lock password delay', 'Immediately');
+    expect(h.config.read('lockscreen')['passwordDelay'], 0);
+    await choose(tester, 'lock password delay', '1 hour');
+    expect(h.config.read('lockscreen')['passwordDelay'], 3600);
+    await choose(tester, 'lock password delay', 'Never');
+    // Never is a null that stays in the file: the key's absence means 15 minutes.
+    expect(h.config.read('lockscreen').containsKey('passwordDelay'), isTrue);
+    expect(h.config.read('lockscreen')['passwordDelay'], isNull);
+    expect(h.config.passwordDelay(), isNull);
+    await tester.tap(switchIn('lock show user'));
+    await tester.pump();
+    expect(h.config.read('lockscreen')['showUser'], false);
   });
 
   testWidgets('Users & Groups lists the accounts', (tester) async {
@@ -352,7 +562,6 @@ void main() {
 
   for (final pane in [
     PaneId.screenTime,
-    PaneId.lockScreen,
     PaneId.privacy,
     PaneId.password,
     PaneId.internetAccounts,

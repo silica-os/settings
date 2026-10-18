@@ -906,10 +906,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get keyboardDictation => 'Dettatura';
 
   @override
-  String get shortcutsReadOnly =>
-      'Queste abbreviazioni non si possono ancora cambiare da Impostazioni. Logo è il tasto con il logo del sistema.';
-
-  @override
   String get shortcutsScreenshots => 'Istantanee';
 
   @override
@@ -1050,7 +1046,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String lockSeconds(int count) {
-    return '$count secondi';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count secondi',
+      one: '1 secondo',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1951,4 +1953,151 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get menuEmojiSymbols => 'Emoji e simboli';
+
+  @override
+  String get shortcutsHelp =>
+      'Fai clic sui tasti di un\'abbreviazione per registrarne di nuovi; Esc annulla. Logo è il tasto con il logo del sistema.';
+
+  @override
+  String get shortcutsRestoreDefaults => 'Ripristina predefinite';
+
+  @override
+  String get shortcutRecording => 'Premi i tasti…';
+
+  @override
+  String get shortcutNone => 'Nessuna';
+
+  @override
+  String get shortcutNeedsModifier =>
+      'Tieni premuto Logo, Controllo o Alt insieme al tasto.';
+
+  @override
+  String shortcutInUse(String action) {
+    return 'Già usata da «$action».';
+  }
+
+  @override
+  String get shortcutsInputSources => 'Fonti di input';
+
+  @override
+  String get shortcutScreenClipboard =>
+      'Immagine di tutto lo schermo, negli appunti';
+
+  @override
+  String get shortcutSelectionClipboard =>
+      'Immagine di un\'area selezionata, negli appunti';
+
+  @override
+  String get shortcutLauncher => 'Mostra il launcher';
+
+  @override
+  String get shortcutNotifications => 'Mostra il Centro notifiche';
+
+  @override
+  String get shortcutControlCenter => 'Mostra il Centro di controllo';
+
+  @override
+  String get shortcutHideApp => 'Nascondi l\'app';
+
+  @override
+  String get shortcutHideOthers => 'Nascondi le altre app';
+
+  @override
+  String get shortcutFill => 'Riempi lo schermo';
+
+  @override
+  String get shortcutLeftHalf => 'Metà sinistra dello schermo';
+
+  @override
+  String get shortcutRightHalf => 'Metà destra dello schermo';
+
+  @override
+  String get shortcutTopHalf => 'Metà superiore dello schermo';
+
+  @override
+  String get shortcutBottomHalf => 'Metà inferiore dello schermo';
+
+  @override
+  String get shortcutNextSource => 'Fonte di input successiva';
+
+  @override
+  String get menuBarHideAlways => 'Sempre';
+
+  @override
+  String get accessibilityIncreaseContrastHelp =>
+      'Testo, bordi e separatori più marcati e un colore d\'accento più intenso, in ogni app.';
+
+  @override
+  String get accessibilityPointerSize => 'Dimensione del puntatore';
+
+  @override
+  String get accessibilityPointerSizeHelp =>
+      'La dimensione del puntatore sullo schermo.';
+
+  @override
+  String get accessibilityPointerNormal => 'Normale';
+
+  @override
+  String get accessibilityPointerLarge => 'Grande';
+
+  @override
+  String get accessibilityTextSize => 'Dimensione del testo';
+
+  @override
+  String get accessibilityTextDefault => 'Predefinita';
+
+  @override
+  String get accessibilityTextLarger => 'Più grande';
+
+  @override
+  String get accessibilityLargerTextHelp =>
+      'Ingrandisce il testo delle app. La barra dei menu, il Dock e le altre parti della scrivania mantengono la loro dimensione.';
+
+  @override
+  String get screenSaver => 'Salvaschermo';
+
+  @override
+  String get screenSaverStartAfter => 'Avvia dopo';
+
+  @override
+  String get screenSaverDrift => 'Deriva';
+
+  @override
+  String get screenSaverClock => 'Orologio';
+
+  @override
+  String get screenSaverColors => 'Colori';
+
+  @override
+  String get screenSaverHelp =>
+      'Il salvaschermo parte quando il computer è inattivo per questo tempo e termina con un tasto o un movimento. La schermata di blocco chiede la password dopo l\'intervallo impostato in Blocco schermo.';
+
+  @override
+  String get lockPasswordDelayHelp =>
+      'La password viene richiesta dopo l\'avvio del salvaschermo o lo spegnimento dello schermo e prima che il computer vada in stop.';
+
+  @override
+  String get replacementsShortcut => 'Sostituisci';
+
+  @override
+  String get replacementsPhrase => 'Con';
+
+  @override
+  String get replacementsEmpty => 'Nessuna sostituzione di testo.';
+
+  @override
+  String get replacementsHelp =>
+      'Digitando un\'abbreviazione seguita da uno spazio o da un segno di punteggiatura viene sostituita dal testo, in ogni app.';
+
+  @override
+  String get replacementsIncomplete => 'Servono entrambi i testi.';
+
+  @override
+  String get replacementsNoSpaces => 'Niente spazi nell\'abbreviazione.';
+
+  @override
+  String get replacementsRepeated => 'Già usata.';
+
+  @override
+  String get replacementsAdd => 'Aggiungi';
 }

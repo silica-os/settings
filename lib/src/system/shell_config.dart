@@ -4,9 +4,9 @@
 //
 // The keys marked "not wired" are written by these helpers as soon as the shell reads them
 // and the matching control is enabled (AGENTS.md › Never fake): until then the controls stay
-// disabled and Settings writes nothing for them. Wired today: the Dock's `launchAnimation`,
-// the menu bar's `clock` and `recentItems`, the notification previews, grouping and
-// `showInCenter`, the wallpaper `fit`.
+// disabled and Settings writes nothing for them. Wired today: the Dock's `launchAnimation`
+// and `minimizeToApp`, the menu bar's `clock`, `recentItems`, `autohide` and `background`,
+// the notification previews, grouping and `showInCenter`, the wallpaper `fit`.
 
 import 'config.dart';
 
@@ -35,7 +35,7 @@ abstract final class DockSizes {
 /// Whether the Dock's icon bounces while an app opens (dock.json `launchAnimation`).
 enum LaunchAnimation { bounce, none }
 
-/// When the menu bar hides (menubar.json `autohide`; not wired).
+/// When the menu bar hides (menubar.json `autohide`).
 enum MenuBarAutohide { never, fullscreen, always }
 
 /// Counts offered for the recent items (menubar.json `recentItems`).
@@ -108,8 +108,52 @@ enum GroupingMode { automatic, byApp, off }
 /// How the image fills the screen (wallpaper.json `fit`).
 enum WallpaperFit { fill, fit, stretch, center, tile }
 
+/// The delays after which the lock screen asks for the password (lockscreen.json
+/// `passwordDelay`, in seconds; null: never).
+const List<int?> passwordDelayChoices = [0, 5, 60, 300, 900, 3600, null];
+
+/// The default when lockscreen.json says nothing: the reference machine's 15 minutes.
+const int passwordDelayDefault = 900;
+
+/// The screen savers the shell draws (screensaver.json `saver`), in the order of the sheet.
+const List<String> screenSaverChoices = ['drift', 'clock', 'colors'];
+
+/// Minutes without input before the screen saver starts (screensaver.json `minutes`; 0: never).
+const List<int> screenSaverMinutes = [1, 2, 5, 10, 20, 30, 60, 0];
+
 /// Writers of the keys that are not wired yet. Each writes one key and keeps the others.
 extension ShellConfigWrites on ConfigStore {
+  /// The seconds before the password is asked for (null: never; 15 minutes without the key).
+  int? passwordDelay() {
+    final all = read('lockscreen');
+    if (!all.containsKey('passwordDelay')) return passwordDelayDefault;
+    final v = all['passwordDelay'];
+    return v is num && v.isFinite && v >= 0 ? v.round() : null;
+  }
+
+  /// `null` is written as such: never (an absent key means the default).
+  void writePasswordDelay(int? seconds) {
+    final all = read('lockscreen');
+    all['passwordDelay'] = seconds;
+    replace('lockscreen', all);
+  }
+
+  /// The saver chosen, and the minutes before it starts (0: never).
+  String screenSaver() {
+    final v = read('screensaver')['saver'];
+    return screenSaverChoices.contains(v) ? '$v' : screenSaverChoices.first;
+  }
+
+  int screenSaverAfter() {
+    final v = read('screensaver')['minutes'];
+    return v is num && v.isFinite && v > 0 ? v.round() : 0;
+  }
+
+  void writeScreenSaver(String id) => write('screensaver', 'saver', id);
+
+  void writeScreenSaverMinutes(int minutes) =>
+      write('screensaver', 'minutes', minutes);
+
   void writeDockSizes({required double tile, required double magnified}) {
     final t = DockSizes.tile(tile);
     write('dock', 'tileSize', t);

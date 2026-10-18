@@ -903,10 +903,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keyboardDictation => 'Dictation';
 
   @override
-  String get shortcutsReadOnly =>
-      'These shortcuts can\'t be changed from Settings yet. Logo is the key with the system logo.';
-
-  @override
   String get shortcutsScreenshots => 'Screenshots';
 
   @override
@@ -1047,7 +1043,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lockSeconds(int count) {
-    return '$count seconds';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seconds',
+      one: '1 second',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1946,4 +1948,150 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuEmojiSymbols => 'Emoji & Symbols';
+
+  @override
+  String get shortcutsHelp =>
+      'Click the keys of a shortcut to record new ones; Escape cancels. Logo is the key with the system logo.';
+
+  @override
+  String get shortcutsRestoreDefaults => 'Restore Defaults';
+
+  @override
+  String get shortcutRecording => 'Press the keys…';
+
+  @override
+  String get shortcutNone => 'None';
+
+  @override
+  String get shortcutNeedsModifier => 'Hold Logo, Control or Alt with the key.';
+
+  @override
+  String shortcutInUse(String action) {
+    return 'Already used by “$action”.';
+  }
+
+  @override
+  String get shortcutsInputSources => 'Input sources';
+
+  @override
+  String get shortcutScreenClipboard =>
+      'Picture of the whole screen, to the clipboard';
+
+  @override
+  String get shortcutSelectionClipboard =>
+      'Picture of a selected area, to the clipboard';
+
+  @override
+  String get shortcutLauncher => 'Show the launcher';
+
+  @override
+  String get shortcutNotifications => 'Show Notification Center';
+
+  @override
+  String get shortcutControlCenter => 'Show Control Center';
+
+  @override
+  String get shortcutHideApp => 'Hide the app';
+
+  @override
+  String get shortcutHideOthers => 'Hide the other apps';
+
+  @override
+  String get shortcutFill => 'Fill the screen';
+
+  @override
+  String get shortcutLeftHalf => 'Left half of the screen';
+
+  @override
+  String get shortcutRightHalf => 'Right half of the screen';
+
+  @override
+  String get shortcutTopHalf => 'Top half of the screen';
+
+  @override
+  String get shortcutBottomHalf => 'Bottom half of the screen';
+
+  @override
+  String get shortcutNextSource => 'Next input source';
+
+  @override
+  String get menuBarHideAlways => 'Always';
+
+  @override
+  String get accessibilityIncreaseContrastHelp =>
+      'Stronger text, borders and separators, and a deeper accent, in every app.';
+
+  @override
+  String get accessibilityPointerSize => 'Pointer size';
+
+  @override
+  String get accessibilityPointerSizeHelp =>
+      'The size of the pointer on the screen.';
+
+  @override
+  String get accessibilityPointerNormal => 'Normal';
+
+  @override
+  String get accessibilityPointerLarge => 'Large';
+
+  @override
+  String get accessibilityTextSize => 'Text size';
+
+  @override
+  String get accessibilityTextDefault => 'Default';
+
+  @override
+  String get accessibilityTextLarger => 'Larger';
+
+  @override
+  String get accessibilityLargerTextHelp =>
+      'Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.';
+
+  @override
+  String get screenSaver => 'Screen saver';
+
+  @override
+  String get screenSaverStartAfter => 'Start after';
+
+  @override
+  String get screenSaverDrift => 'Drift';
+
+  @override
+  String get screenSaverClock => 'Clock';
+
+  @override
+  String get screenSaverColors => 'Colours';
+
+  @override
+  String get screenSaverHelp =>
+      'The screen saver starts when the computer has been idle for this long and ends with any key or movement. The lock screen asks for the password after the delay set in Lock Screen.';
+
+  @override
+  String get lockPasswordDelayHelp =>
+      'The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.';
+
+  @override
+  String get replacementsShortcut => 'Replace';
+
+  @override
+  String get replacementsPhrase => 'With';
+
+  @override
+  String get replacementsEmpty => 'No text replacements yet.';
+
+  @override
+  String get replacementsHelp =>
+      'Typing a shortcut and then a space or punctuation replaces it with the text, in every app.';
+
+  @override
+  String get replacementsIncomplete => 'Needs both texts.';
+
+  @override
+  String get replacementsNoSpaces => 'No spaces in the shortcut.';
+
+  @override
+  String get replacementsRepeated => 'Already used.';
+
+  @override
+  String get replacementsAdd => 'Add';
 }

@@ -47,6 +47,7 @@ String subTitle(AppLocalizations l, SubPaneId sub) => switch (sub) {
   SubPaneId.transferReset => l.subTransferReset,
   SubPaneId.accessibilityDisplay => l.accessibilityDisplay,
   SubPaneId.accessibilityMotion => l.accessibilityMotion,
+  SubPaneId.accessibilityLargerText => l.accessibilityLargerText,
   SubPaneId.notificationApp => l.paneNotifications,
 };
 
@@ -81,7 +82,8 @@ List<SearchEntry> searchIndex(AppLocalizations l, Iterable<PaneId> panes) {
     for (final sub in SubPaneId.values)
       if (sub != SubPaneId.notificationApp &&
           sub != SubPaneId.accessibilityDisplay &&
-          sub != SubPaneId.accessibilityMotion)
+          sub != SubPaneId.accessibilityMotion &&
+          sub != SubPaneId.accessibilityLargerText)
         at(subTitle(l, sub), PaneId.general, sub),
     at(
       l.accessibilityDisplay,
@@ -92,6 +94,21 @@ List<SearchEntry> searchIndex(AppLocalizations l, Iterable<PaneId> panes) {
       l.accessibilityMotion,
       PaneId.accessibility,
       SubPaneId.accessibilityMotion,
+    ),
+    at(
+      l.accessibilityLargerText,
+      PaneId.accessibility,
+      SubPaneId.accessibilityLargerText,
+    ),
+    at(
+      l.accessibilityPointerSize,
+      PaneId.accessibility,
+      SubPaneId.accessibilityDisplay,
+    ),
+    at(
+      l.accessibilityIncreaseContrast,
+      PaneId.accessibility,
+      SubPaneId.accessibilityDisplay,
     ),
     at(
       l.accessibilityReduceTransparency,

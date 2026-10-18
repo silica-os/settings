@@ -26,6 +26,7 @@ import '../ui/errors.dart';
 import '../ui/grouped.dart';
 import '../ui/symbol.dart';
 import 'input.dart' show showShortcuts;
+import 'screen_saver.dart' show showScreenSaver;
 
 /// The sound item of the menu bar (menubar.json `sound`).
 enum SoundItem { always, active, never }
@@ -88,6 +89,13 @@ class _MenuBarPaneState extends State<MenuBarPane> {
             )
             .firstOrNull ??
         SoundItem.active;
+    final autohide =
+        MenuBarAutohide.values
+            .where(
+              (v) => v.name == config.text('menubar', 'autohide', fallback: ''),
+            )
+            .firstOrNull ??
+        MenuBarAutohide.fullscreen;
     final bluetooth = config.flag('menubar', 'bluetooth', fallback: false);
     final battery = config.flag('menubar', 'battery', fallback: true);
     final percent = config.flag('menubar', 'batteryPercent', fallback: false);
@@ -101,16 +109,25 @@ class _MenuBarPaneState extends State<MenuBarPane> {
       builder: (context, state) => PanePage(
         children: [
           SettingsGroup(
-            unavailable: true,
-            issue: Issues.menuBar,
+            footer: l.menuBarLive,
             children: [
-              PopUpRow<int>(
+              PopUpRow<MenuBarAutohide>(
+                key: const ValueKey('menubar autohide'),
                 title: l.menuBarAutoHide,
-                items: [PopUpItem(0, l.menuBarInFullScreen)],
-                value: 0,
-                onChanged: (_) {},
+                items: [
+                  PopUpItem(MenuBarAutohide.never, l.menuBarNever),
+                  PopUpItem(MenuBarAutohide.fullscreen, l.menuBarInFullScreen),
+                  PopUpItem(MenuBarAutohide.always, l.menuBarHideAlways),
+                ],
+                value: autohide,
+                onChanged: (v) => set('autohide', v.name),
               ),
-              SwitchRow(title: l.menuBarBackground, value: false),
+              SwitchRow(
+                key: const ValueKey('menubar background'),
+                title: l.menuBarBackground,
+                value: config.flag('menubar', 'background', fallback: false),
+                onChanged: (v) => set('background', v),
+              ),
             ],
           ),
           SettingsGroup(
@@ -416,8 +433,11 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
               value: doubleClick,
               onChanged: (v) => set('titleBarDoubleClick', v.name),
             ),
-            Unavailable(
-              child: SwitchRow(title: l.dockMinimizeIntoIcon, value: false),
+            SwitchRow(
+              key: const ValueKey('dock minimize into icon'),
+              title: l.dockMinimizeIntoIcon,
+              value: flag('minimizeToApp', false),
+              onChanged: (v) => set('minimizeToApp', v),
             ),
           ],
         ),
@@ -863,12 +883,11 @@ class _WallpaperPaneState extends State<WallpaperPane> {
               ),
             ),
             const SizedBox(width: 10),
-            Unavailable(
-              child: AmalfiPushButton(
-                label: l.wallpaperScreenSaver,
-                size: AmalfiControlSize.small,
-                onPressed: () {},
-              ),
+            AmalfiPushButton(
+              key: const ValueKey('screen saver button'),
+              label: l.wallpaperScreenSaver,
+              size: AmalfiControlSize.small,
+              onPressed: () => showScreenSaver(context),
             ),
           ],
         ),

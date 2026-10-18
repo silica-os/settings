@@ -292,7 +292,6 @@
   "keyboardInputSources": "Sorgenti di input",
   "keyboardTextReplacements": "Sostituzioni del testo",
   "keyboardDictation": "Dettatura",
-  "shortcutsReadOnly": "Queste abbreviazioni non si possono ancora cambiare da Impostazioni. Logo è il tasto con il logo del sistema.",
   "shortcutsScreenshots": "Istantanee",
   "shortcutsSpaces": "Spazi e Panorama",
   "shortcutsApps": "App",
@@ -332,7 +331,7 @@
   "storageAvailableOf": "{available} disponibili su {total}",
   "lockMinutes": "{count, plural, =1{1 minuto} other{{count} minuti}}",
   "lockHours": "{count, plural, =1{1 ora} other{{count} ore}}",
-  "lockSeconds": "{count} secondi",
+  "lockSeconds": "{count, plural, =1{1 secondo} other{{count} secondi}}",
   "appearanceOtherApps": "Le app e il desktop lo seguono subito.",
   "appearanceNoTintYet": "Colorare le finestre con lo sfondo non è ancora disponibile.",
   "appearanceThemeNote": "Le app e il desktop lo seguono subito. I colori delle cartelle non sono ancora disponibili.",
@@ -595,5 +594,64 @@
   "menuWritingTools": "Strumenti di scrittura",
   "menuAutoFill": "Inserimento automatico",
   "menuStartDictation": "Avvia dettatura…",
-  "menuEmojiSymbols": "Emoji e simboli"
+  "menuEmojiSymbols": "Emoji e simboli",
+  "shortcutsHelp": "Fai clic sui tasti di un'abbreviazione per registrarne di nuovi; Esc annulla. Logo è il tasto con il logo del sistema.",
+  "shortcutsRestoreDefaults": "Ripristina predefinite",
+  "shortcutRecording": "Premi i tasti…",
+  "shortcutNone": "Nessuna",
+  "shortcutNeedsModifier": "Tieni premuto Logo, Controllo o Alt insieme al tasto.",
+  "shortcutInUse": "Già usata da «{action}».",
+  "@shortcutInUse": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsInputSources": "Fonti di input",
+  "shortcutScreenClipboard": "Immagine di tutto lo schermo, negli appunti",
+  "shortcutSelectionClipboard": "Immagine di un'area selezionata, negli appunti",
+  "shortcutLauncher": "Mostra il launcher",
+  "shortcutNotifications": "Mostra il Centro notifiche",
+  "shortcutControlCenter": "Mostra il Centro di controllo",
+  "shortcutHideApp": "Nascondi l'app",
+  "shortcutHideOthers": "Nascondi le altre app",
+  "shortcutFill": "Riempi lo schermo",
+  "shortcutLeftHalf": "Metà sinistra dello schermo",
+  "shortcutRightHalf": "Metà destra dello schermo",
+  "shortcutTopHalf": "Metà superiore dello schermo",
+  "shortcutBottomHalf": "Metà inferiore dello schermo",
+  "shortcutNextSource": "Fonte di input successiva",
+  "menuBarHideAlways": "Sempre",
+  "accessibilityIncreaseContrastHelp": "Testo, bordi e separatori più marcati e un colore d'accento più intenso, in ogni app.",
+  "accessibilityPointerSize": "Dimensione del puntatore",
+  "accessibilityPointerSizeHelp": "La dimensione del puntatore sullo schermo.",
+  "accessibilityPointerNormal": "Normale",
+  "accessibilityPointerLarge": "Grande",
+  "accessibilityTextSize": "Dimensione del testo",
+  "accessibilityTextDefault": "Predefinita",
+  "accessibilityTextLarger": "Più grande",
+  "accessibilityLargerTextHelp": "Ingrandisce il testo delle app. La barra dei menu, il Dock e le altre parti della scrivania mantengono la loro dimensione.",
+  "@lockSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "screenSaver": "Salvaschermo",
+  "screenSaverStartAfter": "Avvia dopo",
+  "screenSaverDrift": "Deriva",
+  "screenSaverClock": "Orologio",
+  "screenSaverColors": "Colori",
+  "screenSaverHelp": "Il salvaschermo parte quando il computer è inattivo per questo tempo e termina con un tasto o un movimento. La schermata di blocco chiede la password dopo l'intervallo impostato in Blocco schermo.",
+  "lockPasswordDelayHelp": "La password viene richiesta dopo l'avvio del salvaschermo o lo spegnimento dello schermo e prima che il computer vada in stop.",
+  "replacementsShortcut": "Sostituisci",
+  "replacementsPhrase": "Con",
+  "replacementsEmpty": "Nessuna sostituzione di testo.",
+  "replacementsHelp": "Digitando un'abbreviazione seguita da uno spazio o da un segno di punteggiatura viene sostituita dal testo, in ogni app.",
+  "replacementsIncomplete": "Servono entrambi i testi.",
+  "replacementsNoSpaces": "Niente spazi nell'abbreviazione.",
+  "replacementsRepeated": "Già usata.",
+  "replacementsAdd": "Aggiungi"
 }

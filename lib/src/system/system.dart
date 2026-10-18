@@ -51,9 +51,13 @@ class SystemState {
     this.appearanceMode = '',
     this.touchpad = false,
     this.mouse = false,
+    this.textReplacements = const [],
   });
 
   final bool reachable;
+
+  /// The text replacements apps apply while typing: (shortcut, phrase).
+  final List<(String, String)> textReplacements;
   final bool wifiAvailable;
   final bool wifiEnabled;
   final String wifiSsid;
@@ -169,6 +173,15 @@ class SystemState {
       appearanceMode: text('appearance.mode'),
       touchpad: flag('input.touchpad'),
       mouse: flag('input.mouse'),
+      textReplacements: [
+        if (d['text.replacements'] case final List list)
+          for (final item in list)
+            if (item is List &&
+                item.length == 2 &&
+                item[0] is String &&
+                item[1] is String)
+              (item[0] as String, item[1] as String),
+      ],
     );
   }
 }
@@ -275,6 +288,10 @@ abstract class SystemBackend {
   /// Tells the daemon the Appearance choices apps follow live (`SetLook`: strings, a number for
   /// `glass`). Settings keeps them in theme.json too, so a missing daemon is not an error.
   Future<void> setLook(Map<String, Object> values);
+
+  /// Replaces the text replacements (`SetTextReplacements`, `a(ss)`). Null when the daemon took
+  /// them, otherwise why not.
+  Future<String?> setTextReplacements(List<(String, String)> list);
 
   /// "Play interface sound effects" (`dev.frascella.Silica.Sound1`); null when the daemon
   /// has no sound service.
@@ -552,6 +569,26 @@ class DaemonBackend implements SystemBackend {
             'from': ?from,
             'to': ?to,
           },
+        ],
+      );
+      return null;
+    } on PlatformException catch (e) {
+      return e.message ?? e.code;
+    } on MissingPluginException {
+      return 'no silica-daemon';
+    }
+  }
+
+  @override
+  Future<String?> setTextReplacements(List<(String, String)> list) async {
+    try {
+      await _call(
+        'SetTextReplacements',
+        signature: 'a(ss)',
+        args: [
+          [
+            for (final (shortcut, phrase) in list) [shortcut, phrase],
+          ],
         ],
       );
       return null;

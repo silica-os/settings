@@ -45,6 +45,15 @@ class FakeSystem implements SystemBackend {
   Future<void> setLook(Map<String, Object> values) async =>
       calls.add('setLook $values');
 
+  /// What the daemon would answer to a text replacements list (null: it took it).
+  String? replacementsError;
+
+  @override
+  Future<String?> setTextReplacements(List<(String, String)> list) async {
+    calls.add('setTextReplacements $list');
+    return replacementsError;
+  }
+
   @override
   Future<void> setAppearanceMode(String mode) async =>
       calls.add('setAppearanceMode $mode');

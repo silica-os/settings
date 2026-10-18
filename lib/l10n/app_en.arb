@@ -292,7 +292,6 @@
   "keyboardInputSources": "Input sources",
   "keyboardTextReplacements": "Text replacements",
   "keyboardDictation": "Dictation",
-  "shortcutsReadOnly": "These shortcuts can't be changed from Settings yet. Logo is the key with the system logo.",
   "shortcutsScreenshots": "Screenshots",
   "shortcutsSpaces": "Spaces and Panorama",
   "shortcutsApps": "Apps",
@@ -373,7 +372,7 @@
       }
     }
   },
-  "lockSeconds": "{count} seconds",
+  "lockSeconds": "{count, plural, =1{1 second} other{{count} seconds}}",
   "@lockSeconds": {
     "placeholders": {
       "count": {
@@ -806,5 +805,57 @@
   "menuWritingTools": "Writing Tools",
   "menuAutoFill": "AutoFill",
   "menuStartDictation": "Start Dictation…",
-  "menuEmojiSymbols": "Emoji & Symbols"
+  "menuEmojiSymbols": "Emoji & Symbols",
+  "shortcutsHelp": "Click the keys of a shortcut to record new ones; Escape cancels. Logo is the key with the system logo.",
+  "shortcutsRestoreDefaults": "Restore Defaults",
+  "shortcutRecording": "Press the keys…",
+  "shortcutNone": "None",
+  "shortcutNeedsModifier": "Hold Logo, Control or Alt with the key.",
+  "shortcutInUse": "Already used by “{action}”.",
+  "@shortcutInUse": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsInputSources": "Input sources",
+  "shortcutScreenClipboard": "Picture of the whole screen, to the clipboard",
+  "shortcutSelectionClipboard": "Picture of a selected area, to the clipboard",
+  "shortcutLauncher": "Show the launcher",
+  "shortcutNotifications": "Show Notification Center",
+  "shortcutControlCenter": "Show Control Center",
+  "shortcutHideApp": "Hide the app",
+  "shortcutHideOthers": "Hide the other apps",
+  "shortcutFill": "Fill the screen",
+  "shortcutLeftHalf": "Left half of the screen",
+  "shortcutRightHalf": "Right half of the screen",
+  "shortcutTopHalf": "Top half of the screen",
+  "shortcutBottomHalf": "Bottom half of the screen",
+  "shortcutNextSource": "Next input source",
+  "menuBarHideAlways": "Always",
+  "accessibilityIncreaseContrastHelp": "Stronger text, borders and separators, and a deeper accent, in every app.",
+  "accessibilityPointerSize": "Pointer size",
+  "accessibilityPointerSizeHelp": "The size of the pointer on the screen.",
+  "accessibilityPointerNormal": "Normal",
+  "accessibilityPointerLarge": "Large",
+  "accessibilityTextSize": "Text size",
+  "accessibilityTextDefault": "Default",
+  "accessibilityTextLarger": "Larger",
+  "accessibilityLargerTextHelp": "Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.",
+  "screenSaver": "Screen saver",
+  "screenSaverStartAfter": "Start after",
+  "screenSaverDrift": "Drift",
+  "screenSaverClock": "Clock",
+  "screenSaverColors": "Colours",
+  "screenSaverHelp": "The screen saver starts when the computer has been idle for this long and ends with any key or movement. The lock screen asks for the password after the delay set in Lock Screen.",
+  "lockPasswordDelayHelp": "The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.",
+  "replacementsShortcut": "Replace",
+  "replacementsPhrase": "With",
+  "replacementsEmpty": "No text replacements yet.",
+  "replacementsHelp": "Typing a shortcut and then a space or punctuation replaces it with the text, in every app.",
+  "replacementsIncomplete": "Needs both texts.",
+  "replacementsNoSpaces": "No spaces in the shortcut.",
+  "replacementsRepeated": "Already used.",
+  "replacementsAdd": "Add"
 }

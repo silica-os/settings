@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silica_settings/src/model/panes.dart';
+import 'package:silica_settings/src/system/shell_config.dart';
 import 'package:silica_settings/src/system/tools.dart';
 import 'package:silica_ui/silica_ui.dart';
 
@@ -26,6 +27,22 @@ void main() {
         await tester.pump();
         expect(h.config.flag('dock', option, fallback: !value), value);
       }
+    });
+
+    testWidgets('Minimize into the app icon writes minimizeToApp', (
+      tester,
+    ) async {
+      final h = await pumpSettings(
+        tester,
+        pane: PaneId.desktopDock,
+        height: 1400,
+      );
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('dock minimize into icon')),
+      );
+      await tester.tap(switchIn('dock minimize into icon'));
+      await tester.pump();
+      expect(h.config.flag('dock', 'minimizeToApp', fallback: false), isTrue);
     });
 
     testWidgets('Animate opening apps writes launchAnimation', (tester) async {
@@ -191,6 +208,38 @@ void main() {
     await tester.tap(switchIn('menubar battery percent'));
     await tester.pump();
     expect(h.config.flag('menubar', 'batteryPercent', fallback: false), isTrue);
+  });
+
+  testWidgets('Menu Bar: auto-hide and the background are written', (
+    tester,
+  ) async {
+    final h = await pumpSettings(tester, pane: PaneId.menuBar);
+    await choose(tester, 'menubar autohide', 'Always');
+    expect(h.config.text('menubar', 'autohide', fallback: ''), 'always');
+    await choose(tester, 'menubar autohide', 'Never');
+    expect(h.config.text('menubar', 'autohide', fallback: ''), 'never');
+    await tester.tap(switchIn('menubar background'));
+    await tester.pump();
+    expect(h.config.flag('menubar', 'background', fallback: false), isTrue);
+  });
+
+  testWidgets('Wallpaper: the screen saver sheet writes screensaver.json', (
+    tester,
+  ) async {
+    final h = await pumpSettings(tester, pane: PaneId.wallpaper, height: 1000);
+    expect(h.config.screenSaver(), 'drift');
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('screen saver button')),
+    );
+    await tester.tap(find.byKey(const ValueKey('screen saver button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clock'));
+    await tester.pump();
+    expect(h.config.read('screensaver')['saver'], 'clock');
+    await choose(tester, 'screen saver after', '10 minutes');
+    expect(h.config.read('screensaver')['minutes'], 10);
+    await choose(tester, 'screen saver after', 'Never');
+    expect(h.config.read('screensaver')['minutes'], 0);
   });
 
   testWidgets('Menu Bar: the recent items count is written', (tester) async {

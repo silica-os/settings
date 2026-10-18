@@ -35,7 +35,8 @@ Settings writes exactly these keys. Code: `lib/src/system/config.dart` (the stor
 | `tileSize` | integer, 16..128 (pt of the icon at rest) | `48` | written |
 | `magnifiedSize` | integer, `tileSize`..`floor(tileSize * 132 / 63)` (pt of the icon under the pointer) | `52` | written |
 | `launchAnimation` | `"bounce"` \| `"none"` | `"bounce"` | written (the shell reads it live) |
-| `minimizeToApp` | bool (windows minimize into their app's icon) | `false` | not wired |
+| `titleBarDoubleClick` | `"zoom"` \| `"minimize"` \| `"none"` | `"zoom"` | written (Ossido's title bars and silica_ui apps) |
+| `minimizeToApp` | bool (windows minimize into their app's icon) | `false` | written (the shell hides the separate cells and tells Ossido where the icons are) |
 
 Settings writes `tileSize` first and clamps `magnifiedSize` to the tile it just wrote; a
 reader must still clamp (`magnifiedSize` below `tileSize` means no magnification). The sliders
@@ -49,8 +50,8 @@ map linearly onto the integer range. `magnify: false` ignores `magnifiedSize`.
 | `bluetooth` | bool | `false` | written |
 | `battery` | bool | `true` | written |
 | `batteryPercent` | bool (only meaningful with `battery`) | `false` | written |
-| `autohide` | `"never"` \| `"fullscreen"` \| `"always"` | `"fullscreen"` | not wired |
-| `background` | bool (the bar's translucent background) | `true` | not wired |
+| `autohide` | `"never"` \| `"fullscreen"` \| `"always"` | `"fullscreen"` | written (the shell reads it live; the bar comes back at the top edge) |
+| `background` | bool (the bar's translucent background) | `false` (the reference bar is bare) | written (the shell reads it live) |
 | `recentItems` | integer, one of 0, 5, 10, 15, 20, 30, 50 (how many recent apps and documents the logo menu lists) | `10` | written |
 | `clock` | object, below | see below | written (the shell reads it live) |
 
@@ -121,6 +122,34 @@ fit does not apply to a color. A missing or unreadable image falls back to the d
 These are read by the compositor and the daemon (silica-desktop `docs/control.md` and
 `docs/daemon.md` are the contract); Settings writes them through `lib/src/system/settings_files.dart`
 and their controls are **written**. Ranges are the readers'; Settings stays inside them.
+
+### lockscreen.json and screensaver.json
+
+```json
+{ "passwordDelay": 900, "showUser": true }
+{ "minutes": 10, "saver": "drift" }
+```
+
+`passwordDelay` is the seconds between the screen saver starting (or the display turning off)
+and the lock; `0` at once, `null` never, **absent** 900 (the reference machine's 15 minutes);
+Settings offers Immediately, 5 seconds, 1, 5 and 15 minutes, 1 hour and Never. `showUser`
+(default true) shows the name and initial on the lock screen. `screensaver.json`: `saver` is
+`drift`, `clock` or `colors`; `minutes` (0 or absent: never) is the idle time before it starts.
+Ossido reads `passwordDelay` and the screensaver file; the shell reads `showUser`.
+Not wired: the password hints, the lock message, the login window options and the power
+buttons of the lock screen (their controls stay disabled with #50).
+
+### shortcuts.json
+
+```json
+{ "window.minimize": "Logo+N", "faro.toggle": null }
+```
+
+The keyboard shortcuts sheet (`lib/src/system/shortcuts.dart`): per command id of the catalog,
+the keys (`Logo+Shift+Q`: modifiers `Logo`, `Ctrl`, `Alt`, `Shift` and the xkb name of the key)
+or `null` for none; a command left out has the catalog's default. While a new combination is
+recorded Settings writes `"capture": true` so Ossido lets the keys reach it; removed at the end.
+Settings refuses a combination already used by another shortcut of the sheet.
 
 ### keyboard.json
 

@@ -1850,12 +1850,6 @@ abstract class AppLocalizations {
   /// **'Dictation'**
   String get keyboardDictation;
 
-  /// No description provided for @shortcutsReadOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'These shortcuts can\'t be changed from Settings yet. Logo is the key with the system logo.'**
-  String get shortcutsReadOnly;
-
   /// No description provided for @shortcutsScreenshots.
   ///
   /// In en, this message translates to:
@@ -2093,7 +2087,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockSeconds.
   ///
   /// In en, this message translates to:
-  /// **'{count} seconds'**
+  /// **'{count, plural, =1{1 second} other{{count} seconds}}'**
   String lockSeconds(int count);
 
   /// No description provided for @appearanceOtherApps.
@@ -3673,6 +3667,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Emoji & Symbols'**
   String get menuEmojiSymbols;
+
+  /// No description provided for @shortcutsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Click the keys of a shortcut to record new ones; Escape cancels. Logo is the key with the system logo.'**
+  String get shortcutsHelp;
+
+  /// No description provided for @shortcutsRestoreDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Defaults'**
+  String get shortcutsRestoreDefaults;
+
+  /// No description provided for @shortcutRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Press the keys…'**
+  String get shortcutRecording;
+
+  /// No description provided for @shortcutNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get shortcutNone;
+
+  /// No description provided for @shortcutNeedsModifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold Logo, Control or Alt with the key.'**
+  String get shortcutNeedsModifier;
+
+  /// No description provided for @shortcutInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Already used by “{action}”.'**
+  String shortcutInUse(String action);
+
+  /// No description provided for @shortcutsInputSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Input sources'**
+  String get shortcutsInputSources;
+
+  /// No description provided for @shortcutScreenClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture of the whole screen, to the clipboard'**
+  String get shortcutScreenClipboard;
+
+  /// No description provided for @shortcutSelectionClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture of a selected area, to the clipboard'**
+  String get shortcutSelectionClipboard;
+
+  /// No description provided for @shortcutLauncher.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the launcher'**
+  String get shortcutLauncher;
+
+  /// No description provided for @shortcutNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Notification Center'**
+  String get shortcutNotifications;
+
+  /// No description provided for @shortcutControlCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Control Center'**
+  String get shortcutControlCenter;
+
+  /// No description provided for @shortcutHideApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the app'**
+  String get shortcutHideApp;
+
+  /// No description provided for @shortcutHideOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the other apps'**
+  String get shortcutHideOthers;
+
+  /// No description provided for @shortcutFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill the screen'**
+  String get shortcutFill;
+
+  /// No description provided for @shortcutLeftHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Left half of the screen'**
+  String get shortcutLeftHalf;
+
+  /// No description provided for @shortcutRightHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Right half of the screen'**
+  String get shortcutRightHalf;
+
+  /// No description provided for @shortcutTopHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Top half of the screen'**
+  String get shortcutTopHalf;
+
+  /// No description provided for @shortcutBottomHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom half of the screen'**
+  String get shortcutBottomHalf;
+
+  /// No description provided for @shortcutNextSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Next input source'**
+  String get shortcutNextSource;
+
+  /// No description provided for @menuBarHideAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get menuBarHideAlways;
+
+  /// No description provided for @accessibilityIncreaseContrastHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Stronger text, borders and separators, and a deeper accent, in every app.'**
+  String get accessibilityIncreaseContrastHelp;
+
+  /// No description provided for @accessibilityPointerSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Pointer size'**
+  String get accessibilityPointerSize;
+
+  /// No description provided for @accessibilityPointerSizeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The size of the pointer on the screen.'**
+  String get accessibilityPointerSizeHelp;
+
+  /// No description provided for @accessibilityPointerNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get accessibilityPointerNormal;
+
+  /// No description provided for @accessibilityPointerLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get accessibilityPointerLarge;
+
+  /// No description provided for @accessibilityTextSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get accessibilityTextSize;
+
+  /// No description provided for @accessibilityTextDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get accessibilityTextDefault;
+
+  /// No description provided for @accessibilityTextLarger.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger'**
+  String get accessibilityTextLarger;
+
+  /// No description provided for @accessibilityLargerTextHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.'**
+  String get accessibilityLargerTextHelp;
+
+  /// No description provided for @screenSaver.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen saver'**
+  String get screenSaver;
+
+  /// No description provided for @screenSaverStartAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Start after'**
+  String get screenSaverStartAfter;
+
+  /// No description provided for @screenSaverDrift.
+  ///
+  /// In en, this message translates to:
+  /// **'Drift'**
+  String get screenSaverDrift;
+
+  /// No description provided for @screenSaverClock.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock'**
+  String get screenSaverClock;
+
+  /// No description provided for @screenSaverColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours'**
+  String get screenSaverColors;
+
+  /// No description provided for @screenSaverHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The screen saver starts when the computer has been idle for this long and ends with any key or movement. The lock screen asks for the password after the delay set in Lock Screen.'**
+  String get screenSaverHelp;
+
+  /// No description provided for @lockPasswordDelayHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.'**
+  String get lockPasswordDelayHelp;
+
+  /// No description provided for @replacementsShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get replacementsShortcut;
+
+  /// No description provided for @replacementsPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'With'**
+  String get replacementsPhrase;
+
+  /// No description provided for @replacementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No text replacements yet.'**
+  String get replacementsEmpty;
+
+  /// No description provided for @replacementsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Typing a shortcut and then a space or punctuation replaces it with the text, in every app.'**
+  String get replacementsHelp;
+
+  /// No description provided for @replacementsIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs both texts.'**
+  String get replacementsIncomplete;
+
+  /// No description provided for @replacementsNoSpaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No spaces in the shortcut.'**
+  String get replacementsNoSpaces;
+
+  /// No description provided for @replacementsRepeated.
+  ///
+  /// In en, this message translates to:
+  /// **'Already used.'**
+  String get replacementsRepeated;
+
+  /// No description provided for @replacementsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get replacementsAdd;
 }
 
 class _AppLocalizationsDelegate
