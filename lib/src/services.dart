@@ -114,6 +114,9 @@ class Services {
        reduceMotion = ValueNotifier(
          config.read('theme')['reduceMotion'] == true,
        ),
+       increaseContrast = ValueNotifier(
+         config.read('theme')['increaseContrast'] == true,
+       ),
        glass = ValueNotifier(_glassLevel(config.read('theme')['glass'])) {
     // This window and the apps that start now draw with the saved look at once.
     SilicaSystemLook.apply(systemLook);
@@ -189,6 +192,9 @@ class Services {
   /// Animations skipped (theme.json `reduceMotion`; Ossido reads it too).
   final ValueNotifier<bool> reduceMotion;
 
+  /// The high-contrast palette (theme.json `increaseContrast`; silica_ui draws it).
+  final ValueNotifier<bool> increaseContrast;
+
   static const int doubleClickSlowest = 1000;
   static const int doubleClickFastest = 150;
 
@@ -212,6 +218,7 @@ class Services {
     doubleClickMs,
     reduceTransparency,
     reduceMotion,
+    increaseContrast,
   ]);
 
   /// The look as silica_ui draws it: set in this window at once, kept by silica-daemon for
@@ -229,6 +236,7 @@ class Services {
     doubleClickMs: doubleClickMs.value,
     reduceTransparency: reduceTransparency.value,
     reduceMotion: reduceMotion.value,
+    increaseContrast: increaseContrast.value,
   );
 
   void _saveLook(String key, Object value) {
@@ -280,6 +288,11 @@ class Services {
   void setReduceMotion(bool value) {
     reduceMotion.value = value;
     _saveLook('reduceMotion', value);
+  }
+
+  void setIncreaseContrast(bool value) {
+    increaseContrast.value = value;
+    _saveLook('increaseContrast', value);
   }
 
   void setDoubleClickMs(int value) {

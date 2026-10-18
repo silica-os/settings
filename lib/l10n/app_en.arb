@@ -833,5 +833,6 @@
   "shortcutTopHalf": "Top half of the screen",
   "shortcutBottomHalf": "Bottom half of the screen",
   "shortcutNextSource": "Next input source",
-  "menuBarHideAlways": "Always"
+  "menuBarHideAlways": "Always",
+  "accessibilityIncreaseContrastHelp": "Stronger text, borders and separators, and a deeper accent, in every app."
 }

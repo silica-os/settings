@@ -3793,6 +3793,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Always'**
   String get menuBarHideAlways;
+
+  /// No description provided for @accessibilityIncreaseContrastHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Stronger text, borders and separators, and a deeper accent, in every app.'**
+  String get accessibilityIncreaseContrastHelp;
 }
 
 class _AppLocalizationsDelegate

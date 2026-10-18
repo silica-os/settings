@@ -354,7 +354,7 @@ class AccessibilityPane extends StatelessWidget {
 }
 
 /// Accessibility › Display: Reduce Transparency draws the glass opaque (Ossido and silica_ui);
-/// Increase Contrast waits for a high-contrast palette.
+/// Increase Contrast switches every app to the high-contrast palette (silica_ui).
 class AccessibilityDisplayPane extends StatefulWidget {
   const AccessibilityDisplayPane({super.key});
 
@@ -383,10 +383,15 @@ class _AccessibilityDisplayPaneState extends State<AccessibilityDisplayPane> {
           ],
         ),
         SettingsGroup(
-          unavailable: true,
-          issue: Issues.accessibility,
+          footer: l.accessibilityIncreaseContrastHelp,
           children: [
-            SwitchRow(title: l.accessibilityIncreaseContrast, value: false),
+            SwitchRow(
+              key: const ValueKey('increase contrast'),
+              title: l.accessibilityIncreaseContrast,
+              value: services.increaseContrast.value,
+              onChanged: (on) =>
+                  setState(() => services.setIncreaseContrast(on)),
+            ),
           ],
         ),
       ],

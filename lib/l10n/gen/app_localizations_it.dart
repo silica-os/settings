@@ -2016,4 +2016,8 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get menuBarHideAlways => 'Sempre';
+
+  @override
+  String get accessibilityIncreaseContrastHelp =>
+      'Testo, bordi e separatori più marcati e un colore d\'accento più intenso, in ogni app.';
 }

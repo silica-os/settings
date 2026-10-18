@@ -370,6 +370,14 @@ void main() {
     await tester.tap(switchIn('reduce motion'));
     await tester.pump();
     expect(h.config.read('theme')['reduceMotion'], false);
+    h.navigation.openPane(PaneId.accessibility);
+    await tester.pump();
+    await tapKey(tester, 'accessibility display');
+    await tester.tap(switchIn('increase contrast'));
+    await tester.pump();
+    expect(h.config.read('theme')['increaseContrast'], true);
+    expect(h.system.calls.last, 'setLook {increaseContrast: true}');
+    expect(SilicaSystemLook.current.increaseContrast, isTrue);
   });
 
   testWidgets('Users & Groups lists the accounts', (tester) async {

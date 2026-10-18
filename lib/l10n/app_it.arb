@@ -622,5 +622,6 @@
   "shortcutTopHalf": "Metà superiore dello schermo",
   "shortcutBottomHalf": "Metà inferiore dello schermo",
   "shortcutNextSource": "Fonte di input successiva",
-  "menuBarHideAlways": "Sempre"
+  "menuBarHideAlways": "Sempre",
+  "accessibilityIncreaseContrastHelp": "Testo, bordi e separatori più marcati e un colore d'accento più intenso, in ogni app."
 }
