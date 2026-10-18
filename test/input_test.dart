@@ -140,6 +140,90 @@ void main() {
     expect(find.text('Logo Space'), findsOneWidget);
   });
 
+  group('Text replacements (#32)', () {
+    testWidgets('the list is edited and sent to the daemon', (tester) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard, height: 900);
+      h.system.current = const SystemState(
+        reachable: true,
+        textReplacements: [('omw', 'On my way!')],
+      );
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('text replacements')),
+      );
+      await tapRowButton(tester, 'text replacements');
+      await tester.pump();
+      expect(
+        find.byKey(const ValueKey('replacement shortcut 0')),
+        findsOneWidget,
+      );
+      // A new row: nothing is sent while it is incomplete.
+      await tapKey(tester, 'replacement add');
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement shortcut 1')),
+        'addr',
+      );
+      await tester.pump();
+      expect(find.text('Needs both texts.'), findsOneWidget);
+      expect(
+        h.system.calls.where((c) => c.startsWith('setTextReplacements')),
+        isEmpty,
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement phrase 1')),
+        '1 Main St',
+      );
+      await tester.pump();
+      expect(
+        h.system.calls.last,
+        'setTextReplacements [(omw, On my way!), (addr, 1 Main St)]',
+      );
+      // A repeated shortcut is flagged and not sent.
+      await tapKey(tester, 'replacement add');
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement shortcut 2')),
+        'omw',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement phrase 2')),
+        'again',
+      );
+      await tester.pump();
+      expect(find.text('Already used.'), findsOneWidget);
+      expect(
+        h.system.calls.last,
+        'setTextReplacements [(omw, On my way!), (addr, 1 Main St)]',
+      );
+      // Removing the first row sends the rest.
+      await tapKey(tester, 'replacement remove 0');
+      await tester.pump();
+      expect(
+        h.system.calls.last,
+        'setTextReplacements [(addr, 1 Main St), (omw, again)]',
+      );
+    });
+
+    testWidgets('the daemon refusing is told', (tester) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard, height: 900);
+      h.system.replacementsError = 'no silica-daemon';
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('text replacements')),
+      );
+      await tapRowButton(tester, 'text replacements');
+      await tester.pump();
+      await tapKey(tester, 'replacement add');
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement shortcut 0')),
+        'a',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('replacement phrase 0')),
+        'b',
+      );
+      await tester.pump();
+      expect(find.text('no silica-daemon'), findsOneWidget);
+    });
+  });
+
   group('Keyboard shortcuts (#20)', () {
     testWidgets('a shortcut is switched off and back to its default', (
       tester,

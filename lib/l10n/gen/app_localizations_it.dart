@@ -2075,4 +2075,29 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get lockPasswordDelayHelp =>
       'La password viene richiesta dopo l\'avvio del salvaschermo o lo spegnimento dello schermo e prima che il computer vada in stop.';
+
+  @override
+  String get replacementsShortcut => 'Sostituisci';
+
+  @override
+  String get replacementsPhrase => 'Con';
+
+  @override
+  String get replacementsEmpty => 'Nessuna sostituzione di testo.';
+
+  @override
+  String get replacementsHelp =>
+      'Digitando un\'abbreviazione seguita da uno spazio o da un segno di punteggiatura viene sostituita dal testo, in ogni app.';
+
+  @override
+  String get replacementsIncomplete => 'Servono entrambi i testi.';
+
+  @override
+  String get replacementsNoSpaces => 'Niente spazi nell\'abbreviazione.';
+
+  @override
+  String get replacementsRepeated => 'Già usata.';
+
+  @override
+  String get replacementsAdd => 'Aggiungi';
 }

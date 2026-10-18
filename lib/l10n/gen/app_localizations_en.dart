@@ -2069,4 +2069,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lockPasswordDelayHelp =>
       'The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.';
+
+  @override
+  String get replacementsShortcut => 'Replace';
+
+  @override
+  String get replacementsPhrase => 'With';
+
+  @override
+  String get replacementsEmpty => 'No text replacements yet.';
+
+  @override
+  String get replacementsHelp =>
+      'Typing a shortcut and then a space or punctuation replaces it with the text, in every app.';
+
+  @override
+  String get replacementsIncomplete => 'Needs both texts.';
+
+  @override
+  String get replacementsNoSpaces => 'No spaces in the shortcut.';
+
+  @override
+  String get replacementsRepeated => 'Already used.';
+
+  @override
+  String get replacementsAdd => 'Add';
 }

@@ -1,11 +1,11 @@
 // Keyboard (ST-KBD-01..14), Mouse and Trackpad (ST-INP-01) and Printers and Scanners (ST-PRT-01).
-// Real: the list of Silica's system shortcuts (silica-desktop's command catalog), editable:
-// shortcuts.json, which Ossido applies at once; the CUPS printers (lpstat) and the default one
-// (lpoptions). Ossido watches keyboard.json (key repeat, input sources, #73) and input.json (the mouse and the touchpad,
-// #74): the sliders, switches and the sources sheet write them. The Trackpad pane is in the
-// sidebar only while the compositor reports a touchpad. The function key, keyboard navigation,
-// text replacements and dictation (#73, #32), the double-click speed (#74) and adding
-// printers (#56) wait for their backends.
+// Real: the system shortcuts (silica-desktop's command catalog), editable in shortcuts.json,
+// which Ossido applies at once; the text replacements (silica-daemon, applied by silica_ui);
+// the CUPS printers (lpstat) and the default one (lpoptions). Ossido watches keyboard.json (key
+// repeat, input sources, #73) and input.json (the mouse and the touchpad, #74): the sliders,
+// switches and the sources sheet write them. The Trackpad pane is in the sidebar only while the
+// compositor reports a touchpad. Dictation (#73) and adding printers (#56) wait for their
+// backends.
 
 import 'dart:math' as math;
 
@@ -20,6 +20,7 @@ import '../system/host.dart';
 import '../system/settings_files.dart';
 import '../system/shortcuts.dart';
 import 'general.dart' show showChoiceSheet;
+import 'text_replacements.dart' show showTextReplacements;
 import '../model/issues.dart';
 import '../ui/grouped.dart';
 
@@ -180,12 +181,11 @@ class _KeyboardPaneState extends State<KeyboardPane> {
                 if (mounted) setState(() {});
               },
             ),
-            Unavailable(
-              child: ButtonRow(
-                title: l.keyboardTextReplacements,
-                label: l.edit,
-                onPressed: () {},
-              ),
+            ButtonRow(
+              key: const ValueKey('text replacements'),
+              title: l.keyboardTextReplacements,
+              label: l.edit,
+              onPressed: () => showTextReplacements(context),
             ),
             Unavailable(
               child: SwitchRow(title: l.keyboardDictation, value: false),

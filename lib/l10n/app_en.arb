@@ -849,5 +849,13 @@
   "screenSaverClock": "Clock",
   "screenSaverColors": "Colours",
   "screenSaverHelp": "The screen saver starts when the computer has been idle for this long and ends with any key or movement. The lock screen asks for the password after the delay set in Lock Screen.",
-  "lockPasswordDelayHelp": "The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps."
+  "lockPasswordDelayHelp": "The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.",
+  "replacementsShortcut": "Replace",
+  "replacementsPhrase": "With",
+  "replacementsEmpty": "No text replacements yet.",
+  "replacementsHelp": "Typing a shortcut and then a space or punctuation replaces it with the text, in every app.",
+  "replacementsIncomplete": "Needs both texts.",
+  "replacementsNoSpaces": "No spaces in the shortcut.",
+  "replacementsRepeated": "Already used.",
+  "replacementsAdd": "Add"
 }

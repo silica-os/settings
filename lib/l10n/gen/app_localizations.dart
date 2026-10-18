@@ -3889,6 +3889,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The password is asked for after the screen saver starts or the display turns off, and before the computer sleeps.'**
   String get lockPasswordDelayHelp;
+
+  /// No description provided for @replacementsShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get replacementsShortcut;
+
+  /// No description provided for @replacementsPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'With'**
+  String get replacementsPhrase;
+
+  /// No description provided for @replacementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No text replacements yet.'**
+  String get replacementsEmpty;
+
+  /// No description provided for @replacementsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Typing a shortcut and then a space or punctuation replaces it with the text, in every app.'**
+  String get replacementsHelp;
+
+  /// No description provided for @replacementsIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs both texts.'**
+  String get replacementsIncomplete;
+
+  /// No description provided for @replacementsNoSpaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No spaces in the shortcut.'**
+  String get replacementsNoSpaces;
+
+  /// No description provided for @replacementsRepeated.
+  ///
+  /// In en, this message translates to:
+  /// **'Already used.'**
+  String get replacementsRepeated;
+
+  /// No description provided for @replacementsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get replacementsAdd;
 }
 
 class _AppLocalizationsDelegate

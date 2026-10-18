@@ -645,5 +645,13 @@
   "screenSaverClock": "Orologio",
   "screenSaverColors": "Colori",
   "screenSaverHelp": "Il salvaschermo parte quando il computer è inattivo per questo tempo e termina con un tasto o un movimento. La schermata di blocco chiede la password dopo l'intervallo impostato in Blocco schermo.",
-  "lockPasswordDelayHelp": "La password viene richiesta dopo l'avvio del salvaschermo o lo spegnimento dello schermo e prima che il computer vada in stop."
+  "lockPasswordDelayHelp": "La password viene richiesta dopo l'avvio del salvaschermo o lo spegnimento dello schermo e prima che il computer vada in stop.",
+  "replacementsShortcut": "Sostituisci",
+  "replacementsPhrase": "Con",
+  "replacementsEmpty": "Nessuna sostituzione di testo.",
+  "replacementsHelp": "Digitando un'abbreviazione seguita da uno spazio o da un segno di punteggiatura viene sostituita dal testo, in ogni app.",
+  "replacementsIncomplete": "Servono entrambi i testi.",
+  "replacementsNoSpaces": "Niente spazi nell'abbreviazione.",
+  "replacementsRepeated": "Già usata.",
+  "replacementsAdd": "Aggiungi"
 }
