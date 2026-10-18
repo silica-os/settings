@@ -28,6 +28,22 @@ void main() {
       }
     });
 
+    testWidgets('Minimize into the app icon writes minimizeToApp', (
+      tester,
+    ) async {
+      final h = await pumpSettings(
+        tester,
+        pane: PaneId.desktopDock,
+        height: 1400,
+      );
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('dock minimize into icon')),
+      );
+      await tester.tap(switchIn('dock minimize into icon'));
+      await tester.pump();
+      expect(h.config.flag('dock', 'minimizeToApp', fallback: false), isTrue);
+    });
+
     testWidgets('Animate opening apps writes launchAnimation', (tester) async {
       final h = await pumpSettings(tester, pane: PaneId.desktopDock);
       await tester.ensureVisible(find.byKey(const ValueKey('dock animate')));

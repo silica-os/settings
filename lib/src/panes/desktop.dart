@@ -416,8 +416,11 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
               value: doubleClick,
               onChanged: (v) => set('titleBarDoubleClick', v.name),
             ),
-            Unavailable(
-              child: SwitchRow(title: l.dockMinimizeIntoIcon, value: false),
+            SwitchRow(
+              key: const ValueKey('dock minimize into icon'),
+              title: l.dockMinimizeIntoIcon,
+              value: flag('minimizeToApp', false),
+              onChanged: (v) => set('minimizeToApp', v),
             ),
           ],
         ),

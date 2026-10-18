@@ -35,7 +35,8 @@ Settings writes exactly these keys. Code: `lib/src/system/config.dart` (the stor
 | `tileSize` | integer, 16..128 (pt of the icon at rest) | `48` | written |
 | `magnifiedSize` | integer, `tileSize`..`floor(tileSize * 132 / 63)` (pt of the icon under the pointer) | `52` | written |
 | `launchAnimation` | `"bounce"` \| `"none"` | `"bounce"` | written (the shell reads it live) |
-| `minimizeToApp` | bool (windows minimize into their app's icon) | `false` | not wired |
+| `titleBarDoubleClick` | `"zoom"` \| `"minimize"` \| `"none"` | `"zoom"` | written (Ossido's title bars and silica_ui apps) |
+| `minimizeToApp` | bool (windows minimize into their app's icon) | `false` | written (the shell hides the separate cells and tells Ossido where the icons are) |
 
 Settings writes `tileSize` first and clamps `magnifiedSize` to the tile it just wrote; a
 reader must still clamp (`magnifiedSize` below `tileSize` means no magnification). The sliders

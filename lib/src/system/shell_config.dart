@@ -4,7 +4,7 @@
 //
 // The keys marked "not wired" are written by these helpers as soon as the shell reads them
 // and the matching control is enabled (AGENTS.md › Never fake): until then the controls stay
-// disabled and Settings writes nothing for them. Wired today: the Dock's `launchAnimation`,
+// disabled and Settings writes nothing for them. Wired today: the Dock's `launchAnimation` and `minimizeToApp`,
 // the menu bar's `clock` and `recentItems`, the notification previews, grouping and
 // `showInCenter`, the wallpaper `fit`.
 
