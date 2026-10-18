@@ -3799,6 +3799,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stronger text, borders and separators, and a deeper accent, in every app.'**
   String get accessibilityIncreaseContrastHelp;
+
+  /// No description provided for @accessibilityPointerSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Pointer size'**
+  String get accessibilityPointerSize;
+
+  /// No description provided for @accessibilityPointerSizeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The size of the pointer on the screen.'**
+  String get accessibilityPointerSizeHelp;
+
+  /// No description provided for @accessibilityPointerNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get accessibilityPointerNormal;
+
+  /// No description provided for @accessibilityPointerLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get accessibilityPointerLarge;
+
+  /// No description provided for @accessibilityTextSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get accessibilityTextSize;
+
+  /// No description provided for @accessibilityTextDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get accessibilityTextDefault;
+
+  /// No description provided for @accessibilityTextLarger.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger'**
+  String get accessibilityTextLarger;
+
+  /// No description provided for @accessibilityLargerTextHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.'**
+  String get accessibilityLargerTextHelp;
 }
 
 class _AppLocalizationsDelegate

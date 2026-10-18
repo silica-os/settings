@@ -623,5 +623,13 @@
   "shortcutBottomHalf": "Metà inferiore dello schermo",
   "shortcutNextSource": "Fonte di input successiva",
   "menuBarHideAlways": "Sempre",
-  "accessibilityIncreaseContrastHelp": "Testo, bordi e separatori più marcati e un colore d'accento più intenso, in ogni app."
+  "accessibilityIncreaseContrastHelp": "Testo, bordi e separatori più marcati e un colore d'accento più intenso, in ogni app.",
+  "accessibilityPointerSize": "Dimensione del puntatore",
+  "accessibilityPointerSizeHelp": "La dimensione del puntatore sullo schermo.",
+  "accessibilityPointerNormal": "Normale",
+  "accessibilityPointerLarge": "Grande",
+  "accessibilityTextSize": "Dimensione del testo",
+  "accessibilityTextDefault": "Predefinita",
+  "accessibilityTextLarger": "Più grande",
+  "accessibilityLargerTextHelp": "Ingrandisce il testo delle app. La barra dei menu, il Dock e le altre parti della scrivania mantengono la loro dimensione."
 }

@@ -2020,4 +2020,30 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get accessibilityIncreaseContrastHelp =>
       'Testo, bordi e separatori più marcati e un colore d\'accento più intenso, in ogni app.';
+
+  @override
+  String get accessibilityPointerSize => 'Dimensione del puntatore';
+
+  @override
+  String get accessibilityPointerSizeHelp =>
+      'La dimensione del puntatore sullo schermo.';
+
+  @override
+  String get accessibilityPointerNormal => 'Normale';
+
+  @override
+  String get accessibilityPointerLarge => 'Grande';
+
+  @override
+  String get accessibilityTextSize => 'Dimensione del testo';
+
+  @override
+  String get accessibilityTextDefault => 'Predefinita';
+
+  @override
+  String get accessibilityTextLarger => 'Più grande';
+
+  @override
+  String get accessibilityLargerTextHelp =>
+      'Ingrandisce il testo delle app. La barra dei menu, il Dock e le altre parti della scrivania mantengono la loro dimensione.';
 }

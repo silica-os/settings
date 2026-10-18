@@ -834,5 +834,13 @@
   "shortcutBottomHalf": "Bottom half of the screen",
   "shortcutNextSource": "Next input source",
   "menuBarHideAlways": "Always",
-  "accessibilityIncreaseContrastHelp": "Stronger text, borders and separators, and a deeper accent, in every app."
+  "accessibilityIncreaseContrastHelp": "Stronger text, borders and separators, and a deeper accent, in every app.",
+  "accessibilityPointerSize": "Pointer size",
+  "accessibilityPointerSizeHelp": "The size of the pointer on the screen.",
+  "accessibilityPointerNormal": "Normal",
+  "accessibilityPointerLarge": "Large",
+  "accessibilityTextSize": "Text size",
+  "accessibilityTextDefault": "Default",
+  "accessibilityTextLarger": "Larger",
+  "accessibilityLargerTextHelp": "Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size."
 }

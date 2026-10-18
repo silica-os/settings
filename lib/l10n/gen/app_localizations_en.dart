@@ -2014,4 +2014,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accessibilityIncreaseContrastHelp =>
       'Stronger text, borders and separators, and a deeper accent, in every app.';
+
+  @override
+  String get accessibilityPointerSize => 'Pointer size';
+
+  @override
+  String get accessibilityPointerSizeHelp =>
+      'The size of the pointer on the screen.';
+
+  @override
+  String get accessibilityPointerNormal => 'Normal';
+
+  @override
+  String get accessibilityPointerLarge => 'Large';
+
+  @override
+  String get accessibilityTextSize => 'Text size';
+
+  @override
+  String get accessibilityTextDefault => 'Default';
+
+  @override
+  String get accessibilityTextLarger => 'Larger';
+
+  @override
+  String get accessibilityLargerTextHelp =>
+      'Makes the text of the apps larger. The menu bar, the Dock and the other parts of the desktop keep their size.';
 }

@@ -380,6 +380,40 @@ void main() {
     expect(SilicaSystemLook.current.increaseContrast, isTrue);
   });
 
+  testWidgets('Accessibility: Larger Text and the pointer size', (
+    tester,
+  ) async {
+    final h = await pumpSettings(tester, pane: PaneId.accessibility);
+    await tapKey(tester, 'accessibility larger text');
+    expect(h.navigation.location.sub, SubPaneId.accessibilityLargerText);
+    final text = tester.widget<AmalfiSlider>(
+      find.descendant(
+        of: find.byKey(const ValueKey('text size')),
+        matching: find.byType(AmalfiSlider),
+      ),
+    );
+    text.onChanged!(1.3);
+    await tester.pump();
+    expect(h.config.read('theme')['textScale'], 1.3);
+    expect(h.system.calls.last, 'setLook {textScale: 1.3}');
+    expect(SilicaSystemLook.current.textScale, 1.3);
+    SilicaSystemLook.apply(const SystemLook());
+    h.navigation.openPane(PaneId.accessibility);
+    await tester.pump();
+    await tapKey(tester, 'accessibility display');
+    final pointer = tester.widget<AmalfiSlider>(
+      find.descendant(
+        of: find.byKey(const ValueKey('pointer size')),
+        matching: find.byType(AmalfiSlider),
+      ),
+    );
+    pointer.onChanged!(48.4);
+    await tester.pump();
+    // Ossido reads theme.json; the daemon is not involved.
+    expect(h.config.read('theme')['cursorSize'], 48);
+    expect(h.system.calls.last, 'setLook {textScale: 1.3}');
+  });
+
   testWidgets('Users & Groups lists the accounts', (tester) async {
     final tools = FakeTools()
       ..accounts = const [

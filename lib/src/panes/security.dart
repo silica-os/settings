@@ -331,12 +331,18 @@ class AccessibilityPane extends StatelessWidget {
               tint: blue,
               onTap: () => open(SubPaneId.accessibilityMotion),
             ),
+            NavRow(
+              key: const ValueKey('accessibility larger text'),
+              title: l.accessibilityLargerText,
+              symbol: 'text-size',
+              tint: blue,
+              onTap: () => open(SubPaneId.accessibilityLargerText),
+            ),
           ],
         ),
         group(l.accessibilityMoreVision, [
           (l.accessibilityScreenReader, 'speaker'),
           (l.accessibilityZoom, 'search'),
-          (l.accessibilityLargerText, 'text-size'),
           (l.accessibilitySpokenContent, 'speaker'),
         ]),
         group(l.accessibilityPhysical, [
@@ -383,6 +389,24 @@ class _AccessibilityDisplayPaneState extends State<AccessibilityDisplayPane> {
           ],
         ),
         SettingsGroup(
+          footer: l.accessibilityPointerSizeHelp,
+          children: [
+            SliderRow(
+              key: const ValueKey('pointer size'),
+              title: l.accessibilityPointerSize,
+              value: services.cursorSize.value.toDouble(),
+              min: cursorSizeMin.toDouble(),
+              max: cursorSizeMax.toDouble(),
+              labels: [
+                l.accessibilityPointerNormal,
+                l.accessibilityPointerLarge,
+              ],
+              onChanged: (v) =>
+                  setState(() => services.setCursorSize(v.round())),
+            ),
+          ],
+        ),
+        SettingsGroup(
           footer: l.accessibilityIncreaseContrastHelp,
           children: [
             SwitchRow(
@@ -391,6 +415,44 @@ class _AccessibilityDisplayPaneState extends State<AccessibilityDisplayPane> {
               value: services.increaseContrast.value,
               onChanged: (on) =>
                   setState(() => services.setIncreaseContrast(on)),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Accessibility › Larger Text: the apps' text grows by a factor (silica_ui, every app but the
+/// shell).
+class AccessibilityLargerTextPane extends StatefulWidget {
+  const AccessibilityLargerTextPane({super.key});
+
+  @override
+  State<AccessibilityLargerTextPane> createState() =>
+      _AccessibilityLargerTextPaneState();
+}
+
+class _AccessibilityLargerTextPaneState
+    extends State<AccessibilityLargerTextPane> {
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final services = ServicesScope.of(context);
+    return PanePage(
+      children: [
+        SettingsGroup(
+          footer: l.accessibilityLargerTextHelp,
+          children: [
+            SliderRow(
+              key: const ValueKey('text size'),
+              title: l.accessibilityTextSize,
+              value: services.textScale.value,
+              min: 1,
+              max: 1.5,
+              divisions: 5,
+              labels: [l.accessibilityTextDefault, l.accessibilityTextLarger],
+              onChanged: (v) => setState(() => services.setTextScale(v)),
             ),
           ],
         ),

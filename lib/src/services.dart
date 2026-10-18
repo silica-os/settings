@@ -117,6 +117,10 @@ class Services {
        increaseContrast = ValueNotifier(
          config.read('theme')['increaseContrast'] == true,
        ),
+       textScale = ValueNotifier(_textScale(config.read('theme')['textScale'])),
+       cursorSize = ValueNotifier(
+         _cursorSize(config.read('theme')['cursorSize']),
+       ),
        glass = ValueNotifier(_glassLevel(config.read('theme')['glass'])) {
     // This window and the apps that start now draw with the saved look at once.
     SilicaSystemLook.apply(systemLook);
@@ -195,8 +199,23 @@ class Services {
   /// The high-contrast palette (theme.json `increaseContrast`; silica_ui draws it).
   final ValueNotifier<bool> increaseContrast;
 
+  /// The size of the apps' text relative to the design's (theme.json `textScale`, 1–1.5).
+  final ValueNotifier<double> textScale;
+
+  /// The pointer's size (theme.json `cursorSize`; Ossido draws the cursor at that size).
+  final ValueNotifier<int> cursorSize;
+
   static const int doubleClickSlowest = 1000;
   static const int doubleClickFastest = 150;
+
+  /// The text factor, 1 to 1.5 (Larger Text).
+  static double _textScale(Object? value) =>
+      value is num && value.isFinite ? value.toDouble().clamp(1.0, 1.5) : 1.0;
+
+  /// The pointer's size in points, 16 to 128; the default 24.
+  static int _cursorSize(Object? value) => value is num && value.isFinite
+      ? value.round().clamp(cursorSizeMin, cursorSizeMax)
+      : cursorSizeDefault;
 
   static int _doubleClick(Object? value) => value is num && value.isFinite
       ? value.round().clamp(doubleClickFastest, doubleClickSlowest)
@@ -219,6 +238,8 @@ class Services {
     reduceTransparency,
     reduceMotion,
     increaseContrast,
+    textScale,
+    cursorSize,
   ]);
 
   /// The look as silica_ui draws it: set in this window at once, kept by silica-daemon for
@@ -237,6 +258,7 @@ class Services {
     reduceTransparency: reduceTransparency.value,
     reduceMotion: reduceMotion.value,
     increaseContrast: increaseContrast.value,
+    textScale: textScale.value,
   );
 
   void _saveLook(String key, Object value) {
@@ -295,6 +317,21 @@ class Services {
     _saveLook('increaseContrast', value);
   }
 
+  void setTextScale(double value) {
+    final scale = _textScale(value);
+    if (scale == textScale.value) return;
+    textScale.value = scale;
+    _saveLook('textScale', scale);
+  }
+
+  /// Ossido watches theme.json: no daemon call, the apps do not draw the pointer.
+  void setCursorSize(int value) {
+    final size = _cursorSize(value);
+    if (size == cursorSize.value) return;
+    cursorSize.value = size;
+    config.write('theme', 'cursorSize', size);
+  }
+
   void setDoubleClickMs(int value) {
     final ms = _doubleClick(value);
     if (ms == doubleClickMs.value) return;
@@ -309,6 +346,11 @@ class Services {
     _saveLook('glass', level);
   }
 }
+
+/// The pointer sizes Settings offers, in points (Ossido accepts 16–128).
+const int cursorSizeMin = 24;
+const int cursorSizeMax = 96;
+const int cursorSizeDefault = 24;
 
 class ServicesScope extends InheritedWidget {
   const ServicesScope({
