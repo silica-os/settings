@@ -903,10 +903,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keyboardDictation => 'Dictation';
 
   @override
-  String get shortcutsReadOnly =>
-      'These shortcuts can\'t be changed from Settings yet. Logo is the key with the system logo.';
-
-  @override
   String get shortcutsScreenshots => 'Screenshots';
 
   @override
@@ -1946,4 +1942,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuEmojiSymbols => 'Emoji & Symbols';
+
+  @override
+  String get shortcutsHelp =>
+      'Click the keys of a shortcut to record new ones; Escape cancels. Logo is the key with the system logo.';
+
+  @override
+  String get shortcutsRestoreDefaults => 'Restore Defaults';
+
+  @override
+  String get shortcutRecording => 'Press the keys…';
+
+  @override
+  String get shortcutNone => 'None';
+
+  @override
+  String get shortcutNeedsModifier => 'Hold Logo, Control or Alt with the key.';
+
+  @override
+  String shortcutInUse(String action) {
+    return 'Already used by “$action”.';
+  }
+
+  @override
+  String get shortcutsInputSources => 'Input sources';
+
+  @override
+  String get shortcutScreenClipboard =>
+      'Picture of the whole screen, to the clipboard';
+
+  @override
+  String get shortcutSelectionClipboard =>
+      'Picture of a selected area, to the clipboard';
+
+  @override
+  String get shortcutLauncher => 'Show the launcher';
+
+  @override
+  String get shortcutNotifications => 'Show Notification Center';
+
+  @override
+  String get shortcutControlCenter => 'Show Control Center';
+
+  @override
+  String get shortcutHideApp => 'Hide the app';
+
+  @override
+  String get shortcutHideOthers => 'Hide the other apps';
+
+  @override
+  String get shortcutFill => 'Fill the screen';
+
+  @override
+  String get shortcutLeftHalf => 'Left half of the screen';
+
+  @override
+  String get shortcutRightHalf => 'Right half of the screen';
+
+  @override
+  String get shortcutTopHalf => 'Top half of the screen';
+
+  @override
+  String get shortcutBottomHalf => 'Bottom half of the screen';
+
+  @override
+  String get shortcutNextSource => 'Next input source';
 }

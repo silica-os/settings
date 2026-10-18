@@ -292,7 +292,6 @@
   "keyboardInputSources": "Sorgenti di input",
   "keyboardTextReplacements": "Sostituzioni del testo",
   "keyboardDictation": "Dettatura",
-  "shortcutsReadOnly": "Queste abbreviazioni non si possono ancora cambiare da Impostazioni. Logo è il tasto con il logo del sistema.",
   "shortcutsScreenshots": "Istantanee",
   "shortcutsSpaces": "Spazi e Panorama",
   "shortcutsApps": "App",
@@ -595,5 +594,32 @@
   "menuWritingTools": "Strumenti di scrittura",
   "menuAutoFill": "Inserimento automatico",
   "menuStartDictation": "Avvia dettatura…",
-  "menuEmojiSymbols": "Emoji e simboli"
+  "menuEmojiSymbols": "Emoji e simboli",
+  "shortcutsHelp": "Fai clic sui tasti di un'abbreviazione per registrarne di nuovi; Esc annulla. Logo è il tasto con il logo del sistema.",
+  "shortcutsRestoreDefaults": "Ripristina predefinite",
+  "shortcutRecording": "Premi i tasti…",
+  "shortcutNone": "Nessuna",
+  "shortcutNeedsModifier": "Tieni premuto Logo, Controllo o Alt insieme al tasto.",
+  "shortcutInUse": "Già usata da «{action}».",
+  "@shortcutInUse": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsInputSources": "Fonti di input",
+  "shortcutScreenClipboard": "Immagine di tutto lo schermo, negli appunti",
+  "shortcutSelectionClipboard": "Immagine di un'area selezionata, negli appunti",
+  "shortcutLauncher": "Mostra il launcher",
+  "shortcutNotifications": "Mostra il Centro notifiche",
+  "shortcutControlCenter": "Mostra il Centro di controllo",
+  "shortcutHideApp": "Nascondi l'app",
+  "shortcutHideOthers": "Nascondi le altre app",
+  "shortcutFill": "Riempi lo schermo",
+  "shortcutLeftHalf": "Metà sinistra dello schermo",
+  "shortcutRightHalf": "Metà destra dello schermo",
+  "shortcutTopHalf": "Metà superiore dello schermo",
+  "shortcutBottomHalf": "Metà inferiore dello schermo",
+  "shortcutNextSource": "Fonte di input successiva"
 }

@@ -292,7 +292,6 @@
   "keyboardInputSources": "Input sources",
   "keyboardTextReplacements": "Text replacements",
   "keyboardDictation": "Dictation",
-  "shortcutsReadOnly": "These shortcuts can't be changed from Settings yet. Logo is the key with the system logo.",
   "shortcutsScreenshots": "Screenshots",
   "shortcutsSpaces": "Spaces and Panorama",
   "shortcutsApps": "Apps",
@@ -806,5 +805,32 @@
   "menuWritingTools": "Writing Tools",
   "menuAutoFill": "AutoFill",
   "menuStartDictation": "Start Dictation…",
-  "menuEmojiSymbols": "Emoji & Symbols"
+  "menuEmojiSymbols": "Emoji & Symbols",
+  "shortcutsHelp": "Click the keys of a shortcut to record new ones; Escape cancels. Logo is the key with the system logo.",
+  "shortcutsRestoreDefaults": "Restore Defaults",
+  "shortcutRecording": "Press the keys…",
+  "shortcutNone": "None",
+  "shortcutNeedsModifier": "Hold Logo, Control or Alt with the key.",
+  "shortcutInUse": "Already used by “{action}”.",
+  "@shortcutInUse": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "shortcutsInputSources": "Input sources",
+  "shortcutScreenClipboard": "Picture of the whole screen, to the clipboard",
+  "shortcutSelectionClipboard": "Picture of a selected area, to the clipboard",
+  "shortcutLauncher": "Show the launcher",
+  "shortcutNotifications": "Show Notification Center",
+  "shortcutControlCenter": "Show Control Center",
+  "shortcutHideApp": "Hide the app",
+  "shortcutHideOthers": "Hide the other apps",
+  "shortcutFill": "Fill the screen",
+  "shortcutLeftHalf": "Left half of the screen",
+  "shortcutRightHalf": "Right half of the screen",
+  "shortcutTopHalf": "Top half of the screen",
+  "shortcutBottomHalf": "Bottom half of the screen",
+  "shortcutNextSource": "Next input source"
 }

@@ -1,9 +1,11 @@
 // Keyboard, Users, Printers, the panes waiting for a backend, and every pane building.
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silica_settings/src/model/panes.dart';
 import 'package:silica_settings/src/panes/input.dart';
+import 'package:silica_settings/src/system/shortcuts.dart';
 import 'package:silica_settings/src/system/system.dart';
 import 'package:silica_settings/src/system/tools.dart';
 import 'package:silica_ui/silica_ui.dart';
@@ -135,6 +137,67 @@ void main() {
     expect(find.text('Logo ⇧ 3'), findsOneWidget);
     await tapKey(tester, 'shortcut category 2');
     expect(find.text('Logo Space'), findsOneWidget);
+  });
+
+  group('Keyboard shortcuts (#20)', () {
+    testWidgets('a shortcut is switched off and back to its default', (
+      tester,
+    ) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard);
+      await tapKey(tester, 'shortcuts');
+      await tapKey(tester, 'shortcut category 3');
+      await tapKey(tester, 'shortcut on window.minimize');
+      expect(h.config.read('shortcuts'), {'window.minimize': null});
+      expect(find.text('None'), findsWidgets);
+      await tapKey(tester, 'shortcut on window.minimize');
+      expect(
+        h.config.read('shortcuts').containsKey('window.minimize'),
+        isFalse,
+      );
+    });
+
+    testWidgets('new keys are recorded while Ossido lets them through', (
+      tester,
+    ) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard);
+      await tapKey(tester, 'shortcuts');
+      await tapKey(tester, 'shortcut category 3');
+      await tapKey(tester, 'shortcut keys window.minimize');
+      expect(h.config.read('shortcuts')['capture'], isTrue);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.keyN);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.keyN);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+      await tester.pump();
+      expect(h.config.read('shortcuts'), {'window.minimize': 'Logo+n'});
+      expect(find.text('Logo N'), findsOneWidget);
+    });
+
+    testWidgets('a combination in use is refused', (tester) async {
+      final h = await pumpSettings(tester, pane: PaneId.keyboard);
+      await tapKey(tester, 'shortcuts');
+      await tapKey(tester, 'shortcut category 3');
+      await tapKey(tester, 'shortcut keys window.minimize');
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.keyW);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.keyW);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+      await tester.pump();
+      expect(find.textContaining('Already used'), findsOneWidget);
+      expect(
+        h.config.read('shortcuts').containsKey('window.minimize'),
+        isFalse,
+      );
+    });
+
+    test('combinations read and write the catalog format', () {
+      final combo = KeyCombo.parse('Logo+Ctrl+Shift+3');
+      expect(combo?.text, 'Logo+Ctrl+Shift+3');
+      expect(combo?.display, 'Logo ⌃ ⇧ 3');
+      expect(KeyCombo.parse('Hyper+Q'), isNull);
+      expect(const KeyCombo(key: 'a').isUsable, isFalse);
+      expect(const KeyCombo(key: 'F5').isUsable, isTrue);
+    });
   });
 
   group('Mouse and Trackpad (#74)', () {

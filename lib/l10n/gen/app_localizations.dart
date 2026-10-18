@@ -1850,12 +1850,6 @@ abstract class AppLocalizations {
   /// **'Dictation'**
   String get keyboardDictation;
 
-  /// No description provided for @shortcutsReadOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'These shortcuts can\'t be changed from Settings yet. Logo is the key with the system logo.'**
-  String get shortcutsReadOnly;
-
   /// No description provided for @shortcutsScreenshots.
   ///
   /// In en, this message translates to:
@@ -3673,6 +3667,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Emoji & Symbols'**
   String get menuEmojiSymbols;
+
+  /// No description provided for @shortcutsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Click the keys of a shortcut to record new ones; Escape cancels. Logo is the key with the system logo.'**
+  String get shortcutsHelp;
+
+  /// No description provided for @shortcutsRestoreDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Defaults'**
+  String get shortcutsRestoreDefaults;
+
+  /// No description provided for @shortcutRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Press the keys…'**
+  String get shortcutRecording;
+
+  /// No description provided for @shortcutNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get shortcutNone;
+
+  /// No description provided for @shortcutNeedsModifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold Logo, Control or Alt with the key.'**
+  String get shortcutNeedsModifier;
+
+  /// No description provided for @shortcutInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Already used by “{action}”.'**
+  String shortcutInUse(String action);
+
+  /// No description provided for @shortcutsInputSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Input sources'**
+  String get shortcutsInputSources;
+
+  /// No description provided for @shortcutScreenClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture of the whole screen, to the clipboard'**
+  String get shortcutScreenClipboard;
+
+  /// No description provided for @shortcutSelectionClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture of a selected area, to the clipboard'**
+  String get shortcutSelectionClipboard;
+
+  /// No description provided for @shortcutLauncher.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the launcher'**
+  String get shortcutLauncher;
+
+  /// No description provided for @shortcutNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Notification Center'**
+  String get shortcutNotifications;
+
+  /// No description provided for @shortcutControlCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Control Center'**
+  String get shortcutControlCenter;
+
+  /// No description provided for @shortcutHideApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the app'**
+  String get shortcutHideApp;
+
+  /// No description provided for @shortcutHideOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the other apps'**
+  String get shortcutHideOthers;
+
+  /// No description provided for @shortcutFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill the screen'**
+  String get shortcutFill;
+
+  /// No description provided for @shortcutLeftHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Left half of the screen'**
+  String get shortcutLeftHalf;
+
+  /// No description provided for @shortcutRightHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Right half of the screen'**
+  String get shortcutRightHalf;
+
+  /// No description provided for @shortcutTopHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Top half of the screen'**
+  String get shortcutTopHalf;
+
+  /// No description provided for @shortcutBottomHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom half of the screen'**
+  String get shortcutBottomHalf;
+
+  /// No description provided for @shortcutNextSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Next input source'**
+  String get shortcutNextSource;
 }
 
 class _AppLocalizationsDelegate

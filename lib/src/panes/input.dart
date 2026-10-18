@@ -1,7 +1,7 @@
 // Keyboard (ST-KBD-01..14), Mouse and Trackpad (ST-INP-01) and Printers and Scanners (ST-PRT-01).
-// Real: the list of Silica's system shortcuts (read-only, the bindings of silica-desktop's
-// command catalog); the CUPS printers (lpstat) and the default one (lpoptions). Ossido watches
-// keyboard.json (key repeat, input sources, #73) and input.json (the mouse and the touchpad,
+// Real: the list of Silica's system shortcuts (silica-desktop's command catalog), editable:
+// shortcuts.json, which Ossido applies at once; the CUPS printers (lpstat) and the default one
+// (lpoptions). Ossido watches keyboard.json (key repeat, input sources, #73) and input.json (the mouse and the touchpad,
 // #74): the sliders, switches and the sources sheet write them. The Trackpad pane is in the
 // sidebar only while the compositor reports a touchpad. The function key, keyboard navigation,
 // text replacements and dictation (#73, #32), the double-click speed (#74) and adding
@@ -9,6 +9,7 @@
 
 import 'dart:math' as math;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:silica_ui/silica_ui.dart';
 
@@ -17,6 +18,7 @@ import '../services.dart';
 import '../style.dart';
 import '../system/host.dart';
 import '../system/settings_files.dart';
+import '../system/shortcuts.dart';
 import 'general.dart' show showChoiceSheet;
 import '../model/issues.dart';
 import '../ui/grouped.dart';
@@ -346,11 +348,14 @@ class _SourcesSheetState extends State<_SourcesSheet> {
   }
 }
 
-/// A system shortcut: its action and keys (silica-desktop's command catalog: ⌘ is the Logo key).
+/// A system shortcut: the catalog command [id] (silica-desktop's command catalog), its action
+/// and the keys it has by default (the catalog's format; null: none). Logo is the key with the
+/// system logo.
 class SystemShortcut {
-  const SystemShortcut(this.action, this.keys);
+  const SystemShortcut(this.id, this.action, this.defaultKeys);
+  final String id;
   final String action;
-  final String keys;
+  final String? defaultKeys;
 }
 
 /// Silica's system shortcuts by category.
@@ -358,58 +363,121 @@ List<(String, List<SystemShortcut>)> systemShortcuts(AppLocalizations l) => [
   (
     l.shortcutsScreenshots,
     [
-      SystemShortcut(l.shortcutScreen, 'Logo ⇧ 3'),
-      SystemShortcut(l.shortcutSelection, 'Logo ⇧ 4'),
-      SystemShortcut(l.shortcutTools, 'Logo ⇧ 5'),
+      SystemShortcut('screenshot.screen', l.shortcutScreen, 'Logo+Shift+3'),
+      SystemShortcut(
+        'screenshot.screen_clipboard',
+        l.shortcutScreenClipboard,
+        'Logo+Ctrl+Shift+3',
+      ),
+      SystemShortcut(
+        'screenshot.selection',
+        l.shortcutSelection,
+        'Logo+Shift+4',
+      ),
+      SystemShortcut(
+        'screenshot.selection_clipboard',
+        l.shortcutSelectionClipboard,
+        'Logo+Ctrl+Shift+4',
+      ),
+      SystemShortcut('screenshot.toolbar', l.shortcutTools, 'Logo+Shift+5'),
     ],
   ),
   (
     l.shortcutsSpaces,
     [
-      SystemShortcut(l.shortcutPanorama, '⌃ ↑'),
-      SystemShortcut(l.shortcutAppWindows, '⌃ ↓'),
-      SystemShortcut(l.shortcutShowDesktop, 'F11'),
-      SystemShortcut(l.shortcutPreviousSpace, '⌃ ←'),
-      SystemShortcut(l.shortcutNextSpace, '⌃ →'),
+      SystemShortcut('panorama.toggle', l.shortcutPanorama, 'Ctrl+Up'),
+      SystemShortcut('panorama.app', l.shortcutAppWindows, 'Ctrl+Down'),
+      SystemShortcut('desktop.show', l.shortcutShowDesktop, 'F11'),
+      SystemShortcut('space.previous', l.shortcutPreviousSpace, 'Ctrl+Left'),
+      SystemShortcut('space.next', l.shortcutNextSpace, 'Ctrl+Right'),
     ],
   ),
   (
     l.shortcutsApps,
     [
-      SystemShortcut(l.shortcutSearch, 'Logo Space'),
-      SystemShortcut(l.shortcutNextApp, 'Logo ⇥'),
-      SystemShortcut(l.shortcutPreviousApp, 'Logo ⇧ ⇥'),
-      SystemShortcut(l.shortcutQuitApp, 'Logo Q'),
-      SystemShortcut(l.shortcutForceQuit, 'Logo ⌥ Esc'),
+      SystemShortcut('faro.toggle', l.shortcutSearch, 'Logo+space'),
+      SystemShortcut('launcher.toggle', l.shortcutLauncher, null),
+      SystemShortcut('notifications.toggle', l.shortcutNotifications, null),
+      SystemShortcut('controlcenter.toggle', l.shortcutControlCenter, null),
+      SystemShortcut('switcher.next', l.shortcutNextApp, 'Logo+Tab'),
+      SystemShortcut(
+        'switcher.previous',
+        l.shortcutPreviousApp,
+        'Logo+Shift+Tab',
+      ),
+      SystemShortcut('app.quit', l.shortcutQuitApp, 'Logo+Q'),
+      SystemShortcut('app.hide', l.shortcutHideApp, 'Logo+H'),
+      SystemShortcut('app.hide_others', l.shortcutHideOthers, 'Logo+Alt+H'),
+      SystemShortcut(
+        'app.force_quit_panel',
+        l.shortcutForceQuit,
+        'Logo+Alt+Escape',
+      ),
     ],
   ),
   (
     l.shortcutsWindows,
     [
-      SystemShortcut(l.shortcutCloseWindow, 'Logo W'),
-      SystemShortcut(l.shortcutMinimize, 'Logo M'),
-      SystemShortcut(l.shortcutFullScreen, 'Logo ⌃ F'),
+      SystemShortcut('window.close', l.shortcutCloseWindow, 'Logo+W'),
+      SystemShortcut('window.minimize', l.shortcutMinimize, 'Logo+M'),
+      SystemShortcut('window.fullscreen', l.shortcutFullScreen, 'Logo+Ctrl+F'),
+      SystemShortcut('window.tile_fill', l.shortcutFill, null),
+      SystemShortcut('window.tile_left', l.shortcutLeftHalf, 'Logo+Ctrl+Left'),
+      SystemShortcut(
+        'window.tile_right',
+        l.shortcutRightHalf,
+        'Logo+Ctrl+Right',
+      ),
+      SystemShortcut('window.tile_top', l.shortcutTopHalf, 'Logo+Ctrl+Up'),
+      SystemShortcut(
+        'window.tile_bottom',
+        l.shortcutBottomHalf,
+        'Logo+Ctrl+Down',
+      ),
     ],
   ),
-  (l.shortcutsSession, [SystemShortcut(l.shortcutLogOut, 'Logo ⇧ Q')]),
+  (
+    l.shortcutsInputSources,
+    [
+      SystemShortcut(
+        'keyboard.next_source',
+        l.shortcutNextSource,
+        'Ctrl+space',
+      ),
+    ],
+  ),
+  (
+    l.shortcutsSession,
+    [SystemShortcut('session.quit', l.shortcutLogOut, 'Logo+Shift+Q')],
+  ),
 ];
 
-/// The keyboard shortcuts sheet: categories on the left, the shortcuts on the right,
-/// read-only (changing them has no backend yet).
+/// The keyboard shortcuts sheet: categories on the left, the shortcuts on the right. The
+/// checkbox switches a shortcut on or off; a click on its keys records a new combination
+/// (shortcuts.json, which Ossido applies at once).
 Future<void> showShortcuts(BuildContext context) {
   final l = AppLocalizations.of(context);
   final categories = systemShortcuts(l);
+  final bindings = ShortcutBindings(ServicesScope.of(context).config);
   return showAmalfiSheet<void>(
     context,
     semanticLabel: l.keyboardShortcutsButton,
-    builder: (context, sheet) =>
-        _ShortcutsSheet(categories: categories, close: sheet.close),
+    builder: (context, sheet) => _ShortcutsSheet(
+      categories: categories,
+      bindings: bindings,
+      close: sheet.close,
+    ),
   );
 }
 
 class _ShortcutsSheet extends StatefulWidget {
-  const _ShortcutsSheet({required this.categories, required this.close});
+  const _ShortcutsSheet({
+    required this.categories,
+    required this.bindings,
+    required this.close,
+  });
   final List<(String, List<SystemShortcut>)> categories;
+  final ShortcutBindings bindings;
   final VoidCallback close;
 
   @override
@@ -419,99 +487,230 @@ class _ShortcutsSheet extends StatefulWidget {
 class _ShortcutsSheetState extends State<_ShortcutsSheet> {
   int _selected = 0;
 
+  /// The shortcut whose keys are being recorded.
+  String? _recording;
+
+  /// A refused combination: what to tell.
+  String? _refused;
+  final FocusNode _focus = FocusNode(debugLabel: 'record shortcut');
+
+  @override
+  void initState() {
+    super.initState();
+    // A recording left on by a Settings that was closed meanwhile.
+    widget.bindings.capture(false);
+  }
+
+  @override
+  void dispose() {
+    widget.bindings.capture(false);
+    _focus.dispose();
+    super.dispose();
+  }
+
+  Iterable<SystemShortcut> get _all => widget.categories.expand((c) => c.$2);
+
+  KeyCombo? _keysOf(SystemShortcut s) =>
+      widget.bindings.keys(s.id, s.defaultKeys);
+
+  void _record(SystemShortcut s) {
+    setState(() {
+      _recording = s.id;
+      _refused = null;
+    });
+    widget.bindings.capture(true);
+    _focus.requestFocus();
+  }
+
+  void _stopRecording() {
+    widget.bindings.capture(false);
+    if (mounted) setState(() => _recording = null);
+  }
+
+  KeyEventResult _key(FocusNode node, KeyEvent event) {
+    final id = _recording;
+    if (id == null || event is! KeyDownEvent) return KeyEventResult.ignored;
+    final l = AppLocalizations.of(context);
+    final keyboard = HardwareKeyboard.instance;
+    if (event.logicalKey == LogicalKeyboardKey.escape &&
+        !keyboard.isMetaPressed &&
+        !keyboard.isControlPressed &&
+        !keyboard.isAltPressed) {
+      _stopRecording();
+      return KeyEventResult.handled;
+    }
+    final combo = comboOfPress(
+      event.logicalKey,
+      logo: keyboard.isMetaPressed,
+      ctrl: keyboard.isControlPressed,
+      alt: keyboard.isAltPressed,
+      shift: keyboard.isShiftPressed,
+    );
+    // A modifier alone: wait for the key.
+    if (combo == null) return KeyEventResult.handled;
+    if (!combo.isUsable) {
+      setState(() => _refused = l.shortcutNeedsModifier);
+      return KeyEventResult.handled;
+    }
+    final other = _all
+        .where((s) => s.id != id && _keysOf(s) == combo)
+        .firstOrNull;
+    if (other != null) {
+      setState(() => _refused = l.shortcutInUse(other.action));
+      return KeyEventResult.handled;
+    }
+    widget.bindings.set(id, combo);
+    widget.bindings.capture(false);
+    setState(() {
+      _recording = null;
+      _refused = null;
+    });
+    return KeyEventResult.handled;
+  }
+
+  void _toggle(SystemShortcut s, bool on) {
+    if (on) {
+      widget.bindings.reset(s.id);
+    } else {
+      widget.bindings.switchOff(s.id);
+    }
+    setState(() {});
+  }
+
+  void _restoreDefaults() {
+    for (final s in widget.categories[_selected].$2) {
+      widget.bindings.reset(s.id);
+    }
+    setState(() => _refused = null);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final colors = SettingsColors.of(context);
     final accent = ControlAccent.of(context);
     final (_, shortcuts) = widget.categories[_selected];
-    return SizedBox(
-      width: 680,
-      height: 420,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: ListView(
-                      children: [
-                        for (final (i, (name, _)) in widget.categories.indexed)
-                          GestureDetector(
-                            key: ValueKey('shortcut category $i'),
-                            onTap: () => setState(() => _selected = i),
-                            child: Container(
-                              height: 28,
-                              alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: i == _selected ? accent : null,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                name,
-                                style: settingsText(
-                                  13,
-                                  i == _selected
-                                      ? const Color(0xFFFFFFFF)
-                                      : colors.text,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: colors.group,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+    return Focus(
+      focusNode: _focus,
+      onKeyEvent: _key,
+      child: SizedBox(
+        width: 680,
+        height: 420,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      width: 200,
                       child: ListView(
                         children: [
-                          for (final s in shortcuts)
-                            ValueRow(
-                              title: s.action,
-                              trailing: Text(
-                                s.keys,
-                                style: settingsText(13, colors.secondary),
+                          for (final (i, (name, _))
+                              in widget.categories.indexed)
+                            GestureDetector(
+                              key: ValueKey('shortcut category $i'),
+                              onTap: () {
+                                _stopRecording();
+                                setState(() => _selected = i);
+                              },
+                              child: Container(
+                                height: 28,
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: i == _selected ? accent : null,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  name,
+                                  style: settingsText(
+                                    13,
+                                    i == _selected
+                                        ? const Color(0xFFFFFFFF)
+                                        : colors.text,
+                                  ),
+                                ),
                               ),
                             ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colors.group,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ListView(
+                          children: [
+                            for (final s in shortcuts) _row(l, colors, s),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _refused ?? l.shortcutsHelp,
+                      key: const ValueKey('shortcuts note'),
+                      style: settingsText(11, colors.secondary),
+                    ),
+                  ),
+                  AmalfiPushButton(
+                    key: const ValueKey('shortcuts restore'),
+                    label: l.shortcutsRestoreDefaults,
+                    onPressed: _restoreDefaults,
+                  ),
+                  const SizedBox(width: 8),
+                  AmalfiPushButton(
+                    key: const ValueKey('shortcuts done'),
+                    label: l.done,
+                    variant: AmalfiPushButtonVariant.primary,
+                    onPressed: widget.close,
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l.shortcutsReadOnly,
-                    style: settingsText(11, colors.secondary),
-                  ),
-                ),
-                AmalfiPushButton(
-                  key: const ValueKey('shortcuts done'),
-                  label: l.done,
-                  variant: AmalfiPushButtonVariant.primary,
-                  onPressed: widget.close,
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _row(AppLocalizations l, SettingsColors colors, SystemShortcut s) {
+    final keys = _keysOf(s);
+    final recording = _recording == s.id;
+    return ValueRow(
+      key: ValueKey('shortcut ${s.id}'),
+      title: s.action,
+      leading: AmalfiCheckbox(
+        key: ValueKey('shortcut on ${s.id}'),
+        value: keys != null,
+        semanticLabel: s.action,
+        // Without keys there is nothing to switch on: record some first.
+        onChanged: keys == null && s.defaultKeys == null
+            ? null
+            : (on) => _toggle(s, on),
+      ),
+      trailing: AmalfiPushButton(
+        key: ValueKey('shortcut keys ${s.id}'),
+        label: recording
+            ? l.shortcutRecording
+            : keys?.display ?? l.shortcutNone,
+        size: AmalfiControlSize.small,
+        onPressed: () => recording ? _stopRecording() : _record(s),
       ),
     );
   }

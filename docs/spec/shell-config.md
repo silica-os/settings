@@ -122,6 +122,18 @@ These are read by the compositor and the daemon (silica-desktop `docs/control.md
 `docs/daemon.md` are the contract); Settings writes them through `lib/src/system/settings_files.dart`
 and their controls are **written**. Ranges are the readers'; Settings stays inside them.
 
+### shortcuts.json
+
+```json
+{ "window.minimize": "Logo+N", "faro.toggle": null }
+```
+
+The keyboard shortcuts sheet (`lib/src/system/shortcuts.dart`): per command id of the catalog,
+the keys (`Logo+Shift+Q`: modifiers `Logo`, `Ctrl`, `Alt`, `Shift` and the xkb name of the key)
+or `null` for none; a command left out has the catalog's default. While a new combination is
+recorded Settings writes `"capture": true` so Ossido lets the keys reach it; removed at the end.
+Settings refuses a combination already used by another shortcut of the sheet.
+
 ### keyboard.json
 
 ```json

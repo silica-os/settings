@@ -906,10 +906,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get keyboardDictation => 'Dettatura';
 
   @override
-  String get shortcutsReadOnly =>
-      'Queste abbreviazioni non si possono ancora cambiare da Impostazioni. Logo è il tasto con il logo del sistema.';
-
-  @override
   String get shortcutsScreenshots => 'Istantanee';
 
   @override
@@ -1951,4 +1947,70 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get menuEmojiSymbols => 'Emoji e simboli';
+
+  @override
+  String get shortcutsHelp =>
+      'Fai clic sui tasti di un\'abbreviazione per registrarne di nuovi; Esc annulla. Logo è il tasto con il logo del sistema.';
+
+  @override
+  String get shortcutsRestoreDefaults => 'Ripristina predefinite';
+
+  @override
+  String get shortcutRecording => 'Premi i tasti…';
+
+  @override
+  String get shortcutNone => 'Nessuna';
+
+  @override
+  String get shortcutNeedsModifier =>
+      'Tieni premuto Logo, Controllo o Alt insieme al tasto.';
+
+  @override
+  String shortcutInUse(String action) {
+    return 'Già usata da «$action».';
+  }
+
+  @override
+  String get shortcutsInputSources => 'Fonti di input';
+
+  @override
+  String get shortcutScreenClipboard =>
+      'Immagine di tutto lo schermo, negli appunti';
+
+  @override
+  String get shortcutSelectionClipboard =>
+      'Immagine di un\'area selezionata, negli appunti';
+
+  @override
+  String get shortcutLauncher => 'Mostra il launcher';
+
+  @override
+  String get shortcutNotifications => 'Mostra il Centro notifiche';
+
+  @override
+  String get shortcutControlCenter => 'Mostra il Centro di controllo';
+
+  @override
+  String get shortcutHideApp => 'Nascondi l\'app';
+
+  @override
+  String get shortcutHideOthers => 'Nascondi le altre app';
+
+  @override
+  String get shortcutFill => 'Riempi lo schermo';
+
+  @override
+  String get shortcutLeftHalf => 'Metà sinistra dello schermo';
+
+  @override
+  String get shortcutRightHalf => 'Metà destra dello schermo';
+
+  @override
+  String get shortcutTopHalf => 'Metà superiore dello schermo';
+
+  @override
+  String get shortcutBottomHalf => 'Metà inferiore dello schermo';
+
+  @override
+  String get shortcutNextSource => 'Fonte di input successiva';
 }
