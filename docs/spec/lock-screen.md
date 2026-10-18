@@ -16,7 +16,7 @@ window themselves were not shown (*unmeasured*).
 
 ## In Silica
 
-The lock screen is the shell's `lock` layer; its look is ours (the reference one was not
+The lock screen is the shell's ext-session-lock client; its look is ours (the reference one was not
 captured). Working controls: the display-off time (`power.json`), the password delay and the
 user's name and picture (`lockscreen.json`). The hints, the lock message, the login window
 options and the power buttons stay disabled (silica-os/settings#50).

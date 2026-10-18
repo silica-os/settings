@@ -1,7 +1,7 @@
 // Lock Screen (ST-LCK-01), Privacy and Security (ST-PRV-01), Login Password (ST-USR-01), Users
 // and Groups (ST-USR-01), Internet Accounts (ST-ACN-01), Accessibility (ST-ACC-01/02) and
 // Search (ST-SPT-01). Real: the user accounts (passwd and group, administrators from wheel).
-// The lock screen is the shell's (#50): the password delay and the user's name are
+// The lock screen is the shell's, an ext-session-lock client (#50): the password delay and the user's name are
 // lockscreen.json; the display-off time is power.json's, which Ossido reads (#68). The
 // accounts, privacy and search settings wait for their backends: each group names its issue.
 
