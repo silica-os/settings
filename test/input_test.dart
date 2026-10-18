@@ -504,19 +504,18 @@ void main() {
   ) async {
     final h = await pumpSettings(tester, pane: PaneId.lockScreen, height: 900);
     // The reference machine's 15 minutes until the user says otherwise.
-    expect(h.config.passwordDelay(), 900);
+    expect(h.services.settings.passwordDelay(), 900);
     await choose(tester, 'lock password delay', 'Immediately');
-    expect(h.config.read('lockscreen')['passwordDelay'], 0);
+    expect(h.settings.values['lockscreen.passwordDelay'], 0);
     await choose(tester, 'lock password delay', '1 hour');
-    expect(h.config.read('lockscreen')['passwordDelay'], 3600);
+    expect(h.settings.values['lockscreen.passwordDelay'], 3600);
     await choose(tester, 'lock password delay', 'Never');
-    // Never is a null that stays in the file: the key's absence means 15 minutes.
-    expect(h.config.read('lockscreen').containsKey('passwordDelay'), isTrue);
-    expect(h.config.read('lockscreen')['passwordDelay'], isNull);
-    expect(h.config.passwordDelay(), isNull);
+    // Never is -1 (the key's default means 15 minutes).
+    expect(h.settings.values['lockscreen.passwordDelay'], -1);
+    expect(h.services.settings.passwordDelay(), isNull);
     await tester.tap(switchIn('lock show user'));
     await tester.pump();
-    expect(h.config.read('lockscreen')['showUser'], false);
+    expect(h.settings.values['lockscreen.showUser'], false);
   });
 
   testWidgets('Users & Groups lists the accounts', (tester) async {
@@ -582,6 +581,7 @@ void main() {
       expect(h.system.calls, isEmpty);
       expect(h.tools.calls, isEmpty);
       expect(h.config.read('lockscreen'), isEmpty);
+      expect(h.settings.values, isEmpty);
     });
   }
 

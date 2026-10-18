@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silica_settings/src/model/panes.dart';
-import 'package:silica_settings/src/system/shell_config.dart';
 import 'package:silica_settings/src/system/tools.dart';
 import 'package:silica_ui/silica_ui.dart';
 
@@ -14,7 +13,7 @@ import 'pane_helpers.dart';
 
 void main() {
   group('Desktop & Dock', () {
-    testWidgets('the switches write dock.json', (tester) async {
+    testWidgets('the switches set the dock keys', (tester) async {
       final h = await pumpSettings(tester, pane: PaneId.desktopDock);
       for (final (key, option, value) in [
         ('dock magnify', 'magnify', true),
@@ -25,7 +24,7 @@ void main() {
         await tester.ensureVisible(find.byKey(ValueKey(key)));
         await tester.tap(switchIn(key));
         await tester.pump();
-        expect(h.config.flag('dock', option, fallback: !value), value);
+        expect(h.settings.values['dock.$option'], value);
       }
     });
 
@@ -42,19 +41,19 @@ void main() {
       );
       await tester.tap(switchIn('dock minimize into icon'));
       await tester.pump();
-      expect(h.config.flag('dock', 'minimizeToApp', fallback: false), isTrue);
+      expect(h.settings.values['dock.minimizeToApp'], isTrue);
     });
 
     testWidgets('Animate opening apps writes launchAnimation', (tester) async {
       final h = await pumpSettings(tester, pane: PaneId.desktopDock);
       await tester.ensureVisible(find.byKey(const ValueKey('dock animate')));
-      expect(h.config.text('dock', 'launchAnimation', fallback: ''), '');
+      expect(h.settings.values['dock.launchAnimation'], isNull);
       await tester.tap(switchIn('dock animate'));
       await tester.pump();
-      expect(h.config.text('dock', 'launchAnimation', fallback: ''), 'none');
+      expect(h.settings.values['dock.launchAnimation'], 'none');
       await tester.tap(switchIn('dock animate'));
       await tester.pump();
-      expect(h.config.text('dock', 'launchAnimation', fallback: ''), 'bounce');
+      expect(h.settings.values['dock.launchAnimation'], 'bounce');
     });
 
     testWidgets('the Size slider writes tileSize while dragging', (
@@ -66,21 +65,21 @@ void main() {
         matching: find.byType(AmalfiSlider),
       );
       await tester.ensureVisible(slider);
-      expect(h.config.number('dock', 'tileSize', fallback: -1), -1);
+      expect(h.settings.values['dock.tileSize'], isNull);
       final gesture = await tester.startGesture(tester.getCenter(slider));
       await gesture.moveBy(const Offset(40, 0));
       await tester.pump();
-      final mid = h.config.number('dock', 'tileSize', fallback: -1);
+      final mid = (h.settings.values['dock.tileSize']! as num).toDouble();
       expect(mid, greaterThan(48));
       expect(mid, mid.roundToDouble());
       await gesture.moveBy(const Offset(400, 0));
       await tester.pump();
       await gesture.up();
       await tester.pump();
-      expect(h.config.number('dock', 'tileSize', fallback: -1), 128);
+      expect(h.settings.values['dock.tileSize'], 128);
       // The magnified size never falls below the resting size.
       expect(
-        h.config.number('dock', 'magnifiedSize', fallback: -1),
+        h.settings.values['dock.magnifiedSize'],
         greaterThanOrEqualTo(128),
       );
     });
@@ -97,14 +96,14 @@ void main() {
         find.byKey(const ValueKey('dock magnification size')),
       );
       expect(magnified().enabled, isFalse);
-      h.config.write('dock', 'magnify', true);
+      h.settings.emit('dock.magnify', true);
       await tester.pump(const Duration(seconds: 1));
       expect(magnified().enabled, isTrue);
       expect(magnified().min, 60);
       expect(magnified().max, 128);
     });
 
-    testWidgets('an external dock.json change moves the Size slider', (
+    testWidgets('an external change of dock.tileSize moves the Size slider', (
       tester,
     ) async {
       final h = await pumpSettings(tester, pane: PaneId.desktopDock);
@@ -115,9 +114,9 @@ void main() {
         ),
       );
       expect(size().value, 60);
-      // The shell writes tileSize when the Dock separator is dragged.
-      h.config.write('dock', 'tileSize', 96);
-      await tester.pump(const Duration(seconds: 1));
+      // The shell sets tileSize when the Dock separator is dragged.
+      h.settings.emit('dock.tileSize', 96);
+      await tester.pump();
       expect(size().value, 96);
     });
 
@@ -135,10 +134,10 @@ void main() {
     testWidgets('the minimize effect and the position', (tester) async {
       final h = await pumpSettings(tester, pane: PaneId.desktopDock);
       await choose(tester, 'dock minimize effect', 'Scale effect');
-      expect(h.config.text('dock', 'minimizeEffect', fallback: ''), 'scale');
+      expect(h.settings.values['dock.minimizeEffect'], 'scale');
       // The side Docks are not drawn yet: Left cannot be chosen.
       await choose(tester, 'dock position', 'Left');
-      expect(h.config.text('dock', 'position', fallback: 'none'), 'none');
+      expect(h.settings.values['dock.position'], isNull);
     });
 
     testWidgets('the default web browser goes through xdg-settings', (
@@ -191,7 +190,9 @@ void main() {
     });
   });
 
-  testWidgets('Menu Bar: the status items write menubar.json', (tester) async {
+  testWidgets('Menu Bar: the status items set the menubar keys', (
+    tester,
+  ) async {
     final h = await pumpSettings(tester, pane: PaneId.menuBar);
     Finder check(String key) => find.descendant(
       of: find.byKey(ValueKey(key)),
@@ -199,15 +200,15 @@ void main() {
     );
     await tester.tap(check('menubar bluetooth'));
     await tester.pump();
-    expect(h.config.flag('menubar', 'bluetooth', fallback: false), isTrue);
+    expect(h.settings.values['menubar.bluetooth'], isTrue);
     await choose(tester, 'menubar sound', 'Always show');
-    expect(h.config.text('menubar', 'sound', fallback: ''), 'always');
+    expect(h.settings.values['menubar.sound'], 'always');
     await tester.tap(check('menubar sound'));
     await tester.pump();
-    expect(h.config.text('menubar', 'sound', fallback: ''), 'never');
+    expect(h.settings.values['menubar.sound'], 'never');
     await tester.tap(switchIn('menubar battery percent'));
     await tester.pump();
-    expect(h.config.flag('menubar', 'batteryPercent', fallback: false), isTrue);
+    expect(h.settings.values['menubar.batteryPercent'], isTrue);
   });
 
   testWidgets('Menu Bar: auto-hide and the background are written', (
@@ -215,19 +216,19 @@ void main() {
   ) async {
     final h = await pumpSettings(tester, pane: PaneId.menuBar);
     await choose(tester, 'menubar autohide', 'Always');
-    expect(h.config.text('menubar', 'autohide', fallback: ''), 'always');
+    expect(h.settings.values['menubar.autohide'], 'always');
     await choose(tester, 'menubar autohide', 'Never');
-    expect(h.config.text('menubar', 'autohide', fallback: ''), 'never');
+    expect(h.settings.values['menubar.autohide'], 'never');
     await tester.tap(switchIn('menubar background'));
     await tester.pump();
-    expect(h.config.flag('menubar', 'background', fallback: false), isTrue);
+    expect(h.settings.values['menubar.background'], isTrue);
   });
 
-  testWidgets('Wallpaper: the screen saver sheet writes screensaver.json', (
+  testWidgets('Wallpaper: the screen saver sheet sets the screensaver keys', (
     tester,
   ) async {
     final h = await pumpSettings(tester, pane: PaneId.wallpaper, height: 1000);
-    expect(h.config.screenSaver(), 'drift');
+    expect(h.settings.values['screensaver.saver'], isNull);
     await tester.ensureVisible(
       find.byKey(const ValueKey('screen saver button')),
     );
@@ -235,19 +236,19 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Clock'));
     await tester.pump();
-    expect(h.config.read('screensaver')['saver'], 'clock');
+    expect(h.settings.values['screensaver.saver'], 'clock');
     await choose(tester, 'screen saver after', '10 minutes');
-    expect(h.config.read('screensaver')['minutes'], 10);
+    expect(h.settings.values['screensaver.minutes'], 10);
     await choose(tester, 'screen saver after', 'Never');
-    expect(h.config.read('screensaver')['minutes'], 0);
+    expect(h.settings.values['screensaver.minutes'], 0);
   });
 
   testWidgets('Menu Bar: the recent items count is written', (tester) async {
     final h = await pumpSettings(tester, pane: PaneId.menuBar);
     await choose(tester, 'menubar recent items', '20');
-    expect(h.config.read('menubar')['recentItems'], 20);
+    expect(h.settings.values['menubar.recentItems'], 20);
     await choose(tester, 'menubar recent items', 'None');
-    expect(h.config.read('menubar')['recentItems'], 0);
+    expect(h.settings.values['menubar.recentItems'], 0);
   });
 
   testWidgets(
@@ -255,9 +256,10 @@ void main() {
     (tester) async {
       final h = await pumpSettings(tester, pane: PaneId.wallpaper);
       await choose(tester, 'wallpaper fit', 'Tile');
-      expect(h.config.read('wallpaper')['fit'], 'tile');
+      expect(h.settings.values['wallpaper.fit'], 'tile');
       await tapKey(tester, 'wallpaper {color: #1f2a44}');
-      expect(h.config.read('wallpaper'), {'fit': 'tile', 'color': '#1f2a44'});
+      expect(h.settings.values['wallpaper.fit'], 'tile');
+      expect(h.settings.values['wallpaper.color'], '#1f2a44');
       expect(find.textContaining('next login'), findsNothing);
     },
   );
@@ -281,14 +283,12 @@ void main() {
     },
   );
 
-  testWidgets('Wallpaper: a colour replaces the choice in wallpaper.json', (
-    tester,
-  ) async {
+  testWidgets('Wallpaper: a colour replaces the choice', (tester) async {
     final h = await pumpSettings(tester, pane: PaneId.wallpaper);
     await tapKey(tester, 'wallpaper {color: #1f2a44}');
-    expect(h.config.read('wallpaper'), {'color': '#1f2a44'});
+    expect(h.settings.values['wallpaper.color'], '#1f2a44');
     await tapKey(tester, 'wallpaper {}');
-    expect(h.config.read('wallpaper'), isEmpty);
+    expect(h.settings.values['wallpaper.color'], '');
   });
 
   testWidgets('Wallpaper: the Amalfi set with titles; the choice is its id', (
@@ -316,6 +316,6 @@ void main() {
     // Ravello is the default: the current wallpaper's name beside its preview.
     expect(find.text('Ravello'), findsWidgets);
     await tapKey(tester, 'wallpaper {wallpaper: positano-1}');
-    expect(h.config.read('wallpaper'), {'wallpaper': 'positano-1'});
+    expect(h.settings.values['wallpaper.id'], 'positano-1');
   });
 }

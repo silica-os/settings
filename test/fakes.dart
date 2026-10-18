@@ -15,6 +15,7 @@ import 'package:silica_settings/src/system/displays.dart';
 import 'package:silica_settings/src/system/host.dart';
 import 'package:silica_settings/src/system/system.dart';
 import 'package:silica_settings/src/system/tools.dart';
+import 'package:silica_ui/silica_ui.dart';
 
 class FakeSystem implements SystemBackend {
   FakeSystem([this.current = const SystemState(reachable: true)]);
@@ -473,9 +474,13 @@ class Harness {
     required this.navigation,
     required this.tools,
     required this.services,
+    required this.settings,
   });
   final FakeSystem system;
   final ConfigStore config;
+
+  /// The system Settings service, in memory: what the shell would read.
+  final MemorySettingsBackend settings;
   final Navigation navigation;
   final FakeTools tools;
   final Services services;
@@ -506,6 +511,7 @@ Future<Harness> pumpSettings(
   };
   final fake = system ?? FakeSystem();
   final config = ConfigStore('${home.path}/.config/silica');
+  final backend = MemorySettingsBackend();
   final navigation = Navigation(initial: Location(pane));
   final fakeTools = tools ?? FakeTools();
   final services = Services(
@@ -518,6 +524,7 @@ Future<Harness> pumpSettings(
     ),
     env: env,
     tools: fakeTools,
+    settings: SilicaSettings(backend: backend),
   );
   await tester.pumpWidget(
     SettingsApp(locale: locale, navigation: navigation, services: services),
@@ -529,5 +536,6 @@ Future<Harness> pumpSettings(
     navigation: navigation,
     tools: fakeTools,
     services: services,
+    settings: backend,
   );
 }

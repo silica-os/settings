@@ -99,29 +99,37 @@ void main() {
       expect(find.textContaining('administrator'), findsNothing);
     });
 
-    testWidgets('Date & Time: the menu bar clock options write menubar.json', (
-      tester,
-    ) async {
-      final h = await pumpSettings(tester, pane: PaneId.general, height: 1000);
-      h.navigation.openSub(SubPaneId.dateTime);
-      await settle(tester);
-      Map<String, Object?> clock() =>
-          (h.config.read('menubar')['clock'] as Map).cast<String, Object?>();
-      await tester.tap(switchIn('clock 24 hour'));
-      await tester.pump();
-      expect(clock()['hour24'], false);
-      await tester.tap(switchIn('clock seconds'));
-      await tester.pump();
-      await tester.tap(switchIn('clock weekday'));
-      await tester.pump();
-      await choose(tester, 'clock date', 'Never');
-      expect(clock(), {
-        'hour24': false,
-        'seconds': true,
-        'weekday': false,
-        'date': 'never',
-      });
-    });
+    testWidgets(
+      'Date & Time: the menu bar clock options set the menubar.clock keys',
+      (tester) async {
+        final h = await pumpSettings(
+          tester,
+          pane: PaneId.general,
+          height: 1000,
+        );
+        h.navigation.openSub(SubPaneId.dateTime);
+        await settle(tester);
+        Map<String, Object?> clock() => {
+          for (final e in h.settings.values.entries)
+            if (e.key.startsWith('menubar.clock.'))
+              e.key.substring('menubar.clock.'.length): e.value,
+        };
+        await tester.tap(switchIn('clock 24 hour'));
+        await tester.pump();
+        expect(clock()['hour24'], false);
+        await tester.tap(switchIn('clock seconds'));
+        await tester.pump();
+        await tester.tap(switchIn('clock weekday'));
+        await tester.pump();
+        await choose(tester, 'clock date', 'Never');
+        expect(clock(), {
+          'hour24': false,
+          'seconds': true,
+          'weekday': false,
+          'date': 'never',
+        });
+      },
+    );
 
     testWidgets('Date & Time: automatic time and the time zone', (
       tester,

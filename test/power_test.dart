@@ -175,6 +175,7 @@ void main() {
       await choose(tester, 'lock display off', '30 minutes');
       expect(h.config.read('power'), {'displayOffMinutes': 30});
       expect(h.config.read('lockscreen'), isEmpty);
+      expect(h.settings.values, isEmpty);
     });
   });
 }

@@ -17,7 +17,6 @@ import '../model/issues.dart';
 import '../model/panes.dart';
 import '../services.dart';
 import '../style.dart';
-import '../system/config.dart';
 import '../system/settings_files.dart';
 import '../system/shell_config.dart';
 import '../system/tools.dart';
@@ -25,53 +24,41 @@ import '../ui/errors.dart';
 import '../ui/grouped.dart';
 import '../ui/symbol.dart';
 
-/// How an app's notifications appear (the shell's notifications.json `style`).
+/// How an app's notifications appear (the shell's `notifications.apps.<app>.style`).
 enum BannerStyle { banners, alerts, none }
 
-/// The style saved for [key]; banners by default, as in the shell.
-BannerStyle bannerStyleOf(ConfigStore config, String key) {
-  final apps = config.read('notifications')['apps'];
-  final app = apps is Map ? apps[key] : null;
-  final style = app is Map ? app['style'] : null;
-  return BannerStyle.values.where((s) => s.name == style).firstOrNull ??
-      BannerStyle.banners;
-}
+String _appKey(String app, String field) => 'notifications.apps.$app.$field';
 
-/// A key of an app in notifications.json, or null.
-Object? appValue(ConfigStore config, String key, String field) {
-  final apps = config.read('notifications')['apps'];
-  final app = apps is Map ? apps[key] : null;
-  return app is Map ? app[field] : null;
-}
+/// The style saved for [key]; banners by default, as in the shell.
+BannerStyle bannerStyleOf(SilicaSettings settings, String key) =>
+    settings.getEnum(
+      _appKey(key, 'style'),
+      BannerStyle.values,
+      fallback: BannerStyle.banners,
+    );
+
+/// A field of an app in the notification settings, or null.
+Object? appValue(SilicaSettings settings, String key, String field) =>
+    settings.raw(_appKey(key, field));
 
 /// The previews saved for all apps; always by default, as in the shell.
 PreviewMode previewModeOf(Object? name) =>
     PreviewMode.values.where((m) => m.name == name).firstOrNull ??
     PreviewMode.always;
 
-/// Saves [style] for [key], keeping the other apps and the app's other keys.
-void saveBannerStyle(ConfigStore config, String key, BannerStyle style) {
-  final apps = config.read('notifications')['apps'];
-  final all = <String, Object?>{
-    if (apps is Map)
-      for (final e in apps.entries) '${e.key}': e.value,
-  };
-  final app = all[key];
-  all[key] = <String, Object?>{
-    if (app is Map)
-      for (final e in app.entries) '${e.key}': e.value,
-    'style': style.name,
-  };
-  config.write('notifications', 'apps', all);
-}
+/// Saves [style] for [key].
+void saveBannerStyle(SilicaSettings settings, String key, BannerStyle style) =>
+    settings.writeAppNotification(key, 'style', style.name);
 
-/// The apps of notifications.json that are not in the daemon's history any more.
-List<NotifyingApp> savedApps(ConfigStore config) {
-  final apps = config.read('notifications')['apps'];
-  return [
-    if (apps is Map)
-      for (final key in apps.keys) NotifyingApp(key: '$key', name: '$key'),
-  ];
+/// The apps that have notification settings and are not in the daemon's history any more.
+List<NotifyingApp> savedApps(SilicaSettings settings) {
+  const prefix = 'notifications.apps.';
+  final keys = <String>{};
+  for (final key in settings.withPrefix(prefix).keys) {
+    final dot = key.lastIndexOf('.');
+    if (dot > prefix.length) keys.add(key.substring(prefix.length, dot));
+  }
+  return [for (final key in keys) NotifyingApp(key: key, name: key)];
 }
 
 /// The rounded square of an app without its icon: its initial on gray.
@@ -127,7 +114,7 @@ class _NotificationsPaneState extends State<NotificationsPane> {
     final fromDaemon = await services.tools.notifyingApps();
     if (!mounted) return;
     final all = {for (final a in fromDaemon) a.key: a};
-    for (final a in savedApps(services.config)) {
+    for (final a in savedApps(services.settings)) {
       all.putIfAbsent(a.key, () => a);
     }
     setState(
@@ -139,7 +126,7 @@ class _NotificationsPaneState extends State<NotificationsPane> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final config = ServicesScope.of(context).config;
+    final config = ServicesScope.of(context).settings;
     final apps = _apps ?? const <NotifyingApp>[];
     String summary(BannerStyle s) => switch (s) {
       BannerStyle.banners => l.notificationsStyleBanners,
@@ -166,7 +153,7 @@ class _NotificationsPaneState extends State<NotificationsPane> {
                 PopUpItem(PreviewMode.unlocked, l.notificationsWhenUnlocked),
                 PopUpItem(PreviewMode.never, l.notificationsPreviewsNever),
               ],
-              value: previewModeOf(config.read('notifications')['previews']),
+              value: previewModeOf(config.raw('notifications.previews')),
               onChanged: (v) =>
                   setState(() => config.writeNotificationDefaults(previews: v)),
             ),
@@ -234,7 +221,7 @@ class _NotificationAppPaneState extends State<NotificationAppPane> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final config = ServicesScope.of(context).config;
+    final config = ServicesScope.of(context).settings;
     final (key, name) = appDetail(widget.detail);
     final style = bannerStyleOf(config, key);
     if (style != BannerStyle.none) _lastShown = style;

@@ -236,8 +236,7 @@ void main() {
     await tester.tap(find.text('Stay until dismissed'));
     await tester.pump();
     Object? style() =>
-        ((h.config.read('notifications')['apps'] as Map)['org.gnome.Nautilus']
-            as Map)['style'];
+        h.settings.values['notifications.apps.org.gnome.Nautilus.style'];
     expect(style(), 'alerts');
     await tester.tap(switchIn('allow notifications'));
     await tester.pump();
@@ -260,10 +259,13 @@ void main() {
     );
     await settle(tester);
     await choose(tester, 'previews', 'Never');
-    expect(h.config.read('notifications')['previews'], 'never');
+    expect(h.settings.values['notifications.previews'], 'never');
     await tapKey(tester, 'app firefox');
-    Map<Object?, Object?> app() =>
-        (h.config.read('notifications')['apps'] as Map)['firefox'] as Map;
+    Map<String, Object?> app() => {
+      for (final e in h.settings.values.entries)
+        if (e.key.startsWith('notifications.apps.firefox.'))
+          e.key.substring('notifications.apps.firefox.'.length): e.value,
+    };
     await tester.tap(switchIn('show in center'));
     await tester.pump();
     expect(app()['showInCenter'], false);

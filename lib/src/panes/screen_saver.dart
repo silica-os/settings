@@ -38,7 +38,7 @@ class _ScreenSaverSheetState extends State<_ScreenSaverSheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final config = ServicesScope.of(context).config;
+    final config = ServicesScope.of(context).settings;
     final colors = SettingsColors.of(context);
     final chosen = config.screenSaver();
     final minutes = config.screenSaverAfter();

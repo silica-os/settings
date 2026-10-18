@@ -1,15 +1,14 @@
 // Menu Bar (ST-CCT-01), Desktop & Dock (ST-DSK-01..04) and Wallpaper (ST-WLP-01/02); Displays
-// is in displays.dart. Real: the menu bar's status items (menubar.json, watched by the shell),
-// the Dock's options (dock.json, watched by the shell: magnification, recent apps,
+// is in displays.dart. Real: the menu bar's status items (the `menubar.*` settings, applied by
+// the shell), the Dock's options (the `dock.*` settings: magnification, recent apps,
 // auto-hide, minimize effect, indicators, position), the default web browser (xdg-settings)
-// and the wallpaper (wallpaper.json, watched by the shell: the choice and the fill mode). The rest
+// and the wallpaper (the `wallpaper.*` settings: the choice and the fill mode). The rest
 // waits for Ossido and the shell: each group's footer names the issue.
 
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/widgets.dart';
 import 'package:silica_ui/silica_ui.dart';
 
@@ -80,31 +79,24 @@ class _MenuBarPaneState extends State<MenuBarPane> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final config = ServicesScope.of(context).config;
+    final config = ServicesScope.of(context).settings;
     // The shell's defaults (shell/lib/menubar/menubar_config.dart).
-    final sound =
-        SoundItem.values
-            .where(
-              (s) => s.name == config.text('menubar', 'sound', fallback: ''),
-            )
-            .firstOrNull ??
-        SoundItem.active;
-    final autohide =
-        MenuBarAutohide.values
-            .where(
-              (v) => v.name == config.text('menubar', 'autohide', fallback: ''),
-            )
-            .firstOrNull ??
-        MenuBarAutohide.fullscreen;
-    final bluetooth = config.flag('menubar', 'bluetooth', fallback: false);
-    final battery = config.flag('menubar', 'battery', fallback: true);
-    final percent = config.flag('menubar', 'batteryPercent', fallback: false);
-    final recent = switch (config.read('menubar')['recentItems']) {
-      final int n => n,
-      _ => 10,
-    };
+    final sound = config.getEnum(
+      'menubar.sound',
+      SoundItem.values,
+      fallback: SoundItem.active,
+    );
+    final autohide = config.getEnum(
+      'menubar.autohide',
+      MenuBarAutohide.values,
+      fallback: MenuBarAutohide.fullscreen,
+    );
+    final bluetooth = config.getBool('menubar.bluetooth', fallback: false);
+    final battery = config.getBool('menubar.battery', fallback: true);
+    final percent = config.getBool('menubar.batteryPercent', fallback: false);
+    final recent = config.getInt('menubar.recentItems', fallback: 10);
     void set(String key, Object value) =>
-        setState(() => config.write('menubar', key, value));
+        setState(() => unawaited(config.set('menubar.$key', value)));
     return SystemStateBuilder(
       builder: (context, state) => PanePage(
         children: [
@@ -125,7 +117,7 @@ class _MenuBarPaneState extends State<MenuBarPane> {
               SwitchRow(
                 key: const ValueKey('menubar background'),
                 title: l.menuBarBackground,
-                value: config.flag('menubar', 'background', fallback: false),
+                value: config.getBool('menubar.background', fallback: false),
                 onChanged: (v) => set('background', v),
               ),
             ],
@@ -252,25 +244,32 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
   String _browser = '';
   String? _error;
   bool _loaded = false;
-  Timer? _watch;
-  Map<String, Object?>? _seen;
+  Listenable? _keys;
 
-  // The shell writes dock.json too (dragging the Dock separator changes `tileSize`); the
-  // pane re-reads it twice a second and redraws when the file's content changed.
-  void _startWatching(ConfigStore config) {
-    _seen = config.read('dock');
-    _watch = Timer.periodic(const Duration(milliseconds: 500), (_) {
-      final now = config.read('dock');
-      if (!mapEquals(now, _seen)) {
-        _seen = now;
-        if (mounted) setState(() {});
-      }
-    });
+  // The shell writes the Dock's keys too (dragging the separator changes `dock.tileSize`):
+  // the pane redraws when any of them changes.
+  void _startWatching(SilicaSettings settings) {
+    _keys = settings.watch(const [
+      'dock.magnify',
+      'dock.recents',
+      'dock.autohide',
+      'dock.position',
+      'dock.minimizeEffect',
+      'dock.indicators',
+      'dock.tileSize',
+      'dock.magnifiedSize',
+      'dock.launchAnimation',
+      'dock.minimizeToApp',
+    ])..addListener(_changed);
+  }
+
+  void _changed() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _watch?.cancel();
+    _keys?.removeListener(_changed);
     super.dispose();
   }
 
@@ -279,7 +278,7 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
     super.didChangeDependencies();
     if (!_loaded) {
       _loaded = true;
-      _startWatching(ServicesScope.of(context).config);
+      _startWatching(ServicesScope.of(context).settings);
       _loadBrowsers();
     }
   }
@@ -296,6 +295,7 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
     }
   }
 
+  /// A value of the Dock's JSON file that Ossido reads (the title bar double click).
   T _named<T extends Enum>(
     ConfigStore config,
     String key,
@@ -312,33 +312,31 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
     final l = AppLocalizations.of(context);
     final services = ServicesScope.of(context);
     final config = services.config;
+    final settings = services.settings;
     // The shell's defaults (shell/lib/dock/options.dart).
     bool flag(String key, bool fallback) =>
-        config.flag('dock', key, fallback: fallback);
+        settings.getBool('dock.$key', fallback: fallback);
     void set(String key, Object value) =>
-        setState(() => config.write('dock', key, value));
+        setState(() => unawaited(settings.set('dock.$key', value)));
     final tile = DockSizes.tile(
-      config.number('dock', 'tileSize', fallback: DockSizes.tileDefault),
+      settings.getNumber('dock.tileSize', fallback: DockSizes.tileDefault),
     );
     final magnified = DockSizes.magnified(
-      config.number(
-        'dock',
-        'magnifiedSize',
+      settings.getNumber(
+        'dock.magnifiedSize',
         fallback: DockSizes.magnifiedDefault,
       ),
       tile,
     );
-    final position = _named(
-      config,
-      'position',
+    final position = settings.getEnum(
+      'dock.position',
       DockPosition.values,
-      DockPosition.bottom,
+      fallback: DockPosition.bottom,
     );
-    final effect = _named(
-      config,
-      'minimizeEffect',
+    final effect = settings.getEnum(
+      'dock.minimizeEffect',
       MinimizeEffect.values,
-      MinimizeEffect.genie,
+      fallback: MinimizeEffect.genie,
     );
     final doubleClick = _named(
       config,
@@ -367,7 +365,7 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
                 final next = DockSizes.tile(v);
                 if (next == tile) return;
                 setState(
-                  () => config.writeDockSizes(
+                  () => settings.writeDockSizes(
                     tile: next.toDouble(),
                     magnified: magnified.toDouble(),
                   ),
@@ -387,7 +385,7 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
                       final next = DockSizes.magnified(v, tile);
                       if (next == magnified) return;
                       setState(
-                        () => config.writeDockSizes(
+                        () => settings.writeDockSizes(
                           tile: tile.toDouble(),
                           magnified: next.toDouble(),
                         ),
@@ -431,7 +429,9 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
                 PopUpItem(TitleBarAction.none, l.dockDoubleClickNothing),
               ],
               value: doubleClick,
-              onChanged: (v) => set('titleBarDoubleClick', v.name),
+              onChanged: (v) => setState(
+                () => config.write('dock', 'titleBarDoubleClick', v.name),
+              ),
             ),
             SwitchRow(
               key: const ValueKey('dock minimize into icon'),
@@ -459,10 +459,10 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
               key: const ValueKey('dock animate'),
               title: l.dockAnimate,
               value:
-                  config.text('dock', 'launchAnimation', fallback: '') !=
+                  settings.getText('dock.launchAnimation', fallback: '') !=
                   'none',
               onChanged: (v) => setState(
-                () => config.writeLaunchAnimation(
+                () => settings.writeLaunchAnimation(
                   v ? LaunchAnimation.bounce : LaunchAnimation.none,
                 ),
               ),
@@ -814,19 +814,17 @@ class _WallpaperPaneState extends State<WallpaperPane> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final colors = SettingsColors.of(context);
-    final config = ServicesScope.of(context).config;
+    final settings = ServicesScope.of(context).settings;
     final amalfi = _amalfi ?? const <AmalfiWallpaperInfo>[];
-    final current = readWallpaper(config.read('wallpaper'), amalfi: amalfi);
-    void choose(WallpaperOption option) => setState(
-      () => config.replace('wallpaper', {
-        // The fit is a separate choice; a new picture keeps it.
-        'fit': ?config.read('wallpaper')['fit'],
-        ...option.json,
-      }),
-    );
+    final current = readWallpaper(settings.wallpaperChoice(), amalfi: amalfi);
+    // The fit is a separate key; a new picture keeps it.
+    void choose(WallpaperOption option) =>
+        setState(() => settings.writeWallpaper(option.json));
     final fit =
         WallpaperFit.values
-            .where((f) => f.name == config.read('wallpaper')['fit'])
+            .where(
+              (f) => f.name == settings.getText('wallpaper.fit', fallback: ''),
+            )
             .firstOrNull ??
         WallpaperFit.fill;
     final pictures = _pictures ?? const [];
@@ -863,7 +861,8 @@ class _WallpaperPaneState extends State<WallpaperPane> {
                       // A colour or the generated gradient has nothing to fit.
                       onChanged: current is ColorWallpaper
                           ? null
-                          : (v) => setState(() => config.writeWallpaperFit(v)),
+                          : (v) =>
+                                setState(() => settings.writeWallpaperFit(v)),
                     ),
                   ),
                   Unavailable(

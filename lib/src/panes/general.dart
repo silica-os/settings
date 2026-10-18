@@ -765,9 +765,9 @@ class _DateTimePaneState extends State<DateTimePane> {
     final allowed = registered == true;
     final needsAgent = registered == false ? l.errorAuthentication : null;
     final clock = _clock ?? const ClockState();
-    final config = ServicesScope.of(context).config;
-    final style = ClockStyle.read(config.read('menubar'));
-    void setClock(ClockStyle next) => setState(() => config.writeClock(next));
+    final settings = ServicesScope.of(context).settings;
+    final style = ClockStyle.of(settings);
+    void setClock(ClockStyle next) => setState(() => settings.writeClock(next));
     final zone = clock.timezone.isNotEmpty
         ? clock.timezone
         : HostInfoScope.of(context).timezone;
@@ -809,7 +809,7 @@ class _DateTimePaneState extends State<DateTimePane> {
             SwitchRow(
               key: const ValueKey('clock 24 hour'),
               title: l.dateTime24Hour,
-              value: style.hour24 ?? true,
+              value: style.hour24,
               onChanged: (v) => setClock(style.copyWith(hour24: v)),
             ),
             SwitchRow(

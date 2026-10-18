@@ -2,8 +2,10 @@
 // and Groups (ST-USR-01), Internet Accounts (ST-ACN-01), Accessibility (ST-ACC-01/02) and
 // Search (ST-SPT-01). Real: the user accounts (passwd and group, administrators from wheel).
 // The lock screen is the shell's, an ext-session-lock client (#50): the password delay and the user's name are
-// lockscreen.json; the display-off time is power.json's, which Ossido reads (#68). The
+// the `lockscreen.*` settings; the display-off time is power.json's, which Ossido reads (#68). The
 // accounts, privacy and search settings wait for their backends: each group names its issue.
+
+import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:silica_ui/silica_ui.dart';
@@ -52,11 +54,13 @@ class _LockScreenPaneState extends State<LockScreenPane> {
               title: l.lockShowUser,
               value: ServicesScope.of(
                 context,
-              ).config.flag('lockscreen', 'showUser', fallback: true),
+              ).settings.getBool('lockscreen.showUser', fallback: true),
               onChanged: (on) => setState(
-                () => ServicesScope.of(
-                  context,
-                ).config.write('lockscreen', 'showUser', on),
+                () => unawaited(
+                  ServicesScope.of(
+                    context,
+                  ).settings.set('lockscreen.showUser', on),
+                ),
               ),
             ),
           ],
@@ -96,7 +100,7 @@ class _LockScreenPaneState extends State<LockScreenPane> {
 /// The pop-up for the password delay: from the screen saver or the display turning off.
 Widget passwordDelayRow(BuildContext context, VoidCallback changed) {
   final l = AppLocalizations.of(context);
-  final config = ServicesScope.of(context).config;
+  final config = ServicesScope.of(context).settings;
   String label(int? seconds) => switch (seconds) {
     null => l.lockNever,
     0 => l.lockImmediately,

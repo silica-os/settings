@@ -60,7 +60,9 @@ class Services {
     required this.host,
     required this.env,
     SystemTools? tools,
+    SilicaSettings? settings,
   }) : tools = tools ?? HostSystemTools(env: env),
+       settings = settings ?? SilicaSettings.instance,
        accent = ValueNotifier(
          Accent.parse(config.text('theme', 'accent', fallback: '')),
        ),
@@ -128,6 +130,10 @@ class Services {
 
   final SystemBackend system;
   final ConfigStore config;
+
+  /// The system settings service (the shell's keys: `dock.*`, `menubar.*`, `wallpaper.*`,
+  /// `lockscreen.*`, `screensaver.*`, `notifications.*`).
+  final SilicaSettings settings;
   final HostReader host;
   final Map<String, String> env;
 

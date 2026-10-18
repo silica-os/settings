@@ -1,14 +1,11 @@
-// The keys the shell reads from Silica's configuration files, in one place: names, value
-// sets, ranges, defaults and the JSON Settings writes for them. The contract is
-// `docs/spec/shell-config.md`; `test/shell_config_test.dart` pins the exact JSON.
-//
-// The keys marked "not wired" are written by these helpers as soon as the shell reads them
-// and the matching control is enabled (AGENTS.md › Never fake): until then the controls stay
-// disabled and Settings writes nothing for them. Wired today: the Dock's `launchAnimation`
-// and `minimizeToApp`, the menu bar's `clock`, `recentItems`, `autohide` and `background`,
-// the notification previews, grouping and `showInCenter`, the wallpaper `fit`.
+// The keys of the shell's components in the system Settings service
+// (`dev.frascella.Silica.Settings1`, silica-desktop `docs/spec/shell-config.md`): names, value
+// sets, ranges and defaults, and the typed readers and writers Settings uses for them
+// (`SilicaSettings` of silica_ui). `test/shell_config_test.dart` pins the keys written.
 
-import 'config.dart';
+import 'dart:async';
+
+import 'package:silica_ui/silica_ui.dart';
 
 /// dock.json sizes, in points of the icon (the shell draws 48 at rest, `iconSize`).
 abstract final class DockSizes {
@@ -44,34 +41,31 @@ const List<int> recentItemChoices = [0, 5, 10, 15, 20, 30, 50];
 /// When the clock shows the date (menubar.json `clock.date`).
 enum ClockDate { auto, always, never }
 
-/// The menu bar clock (menubar.json `clock`). `hour24` absent is 24 hours.
+/// The menu bar clock (`menubar.clock.*`). 24 hours by default.
 class ClockStyle {
   const ClockStyle({
-    this.hour24,
+    this.hour24 = true,
     this.seconds = false,
     this.weekday = true,
     this.date = ClockDate.auto,
   });
 
-  final bool? hour24;
+  final bool hour24;
   final bool seconds;
   final bool weekday;
   final ClockDate date;
 
-  /// The clock in menubar.json; the defaults for what is missing or odd.
-  factory ClockStyle.read(Map<String, Object?> menubar) {
-    final json = menubar['clock'];
-    if (json is! Map) return const ClockStyle();
-    bool? flag(String key) => json[key] is bool ? json[key] as bool : null;
-    return ClockStyle(
-      hour24: flag('hour24'),
-      seconds: flag('seconds') ?? false,
-      weekday: flag('weekday') ?? true,
-      date:
-          ClockDate.values.where((d) => d.name == json['date']).firstOrNull ??
-          ClockDate.auto,
-    );
-  }
+  /// The clock in the settings.
+  factory ClockStyle.of(SilicaSettings s) => ClockStyle(
+    hour24: s.getBool('menubar.clock.hour24', fallback: true),
+    seconds: s.getBool('menubar.clock.seconds', fallback: false),
+    weekday: s.getBool('menubar.clock.weekday', fallback: true),
+    date: s.getEnum(
+      'menubar.clock.date',
+      ClockDate.values,
+      fallback: ClockDate.auto,
+    ),
+  );
 
   ClockStyle copyWith({
     bool? hour24,
@@ -84,13 +78,6 @@ class ClockStyle {
     weekday: weekday ?? this.weekday,
     date: date ?? this.date,
   );
-
-  Map<String, Object?> toJson() => {
-    'hour24': ?hour24,
-    'seconds': seconds,
-    'weekday': weekday,
-    'date': date.name,
-  };
 }
 
 /// How a notification shows its text (notifications.json `previews`).
@@ -121,95 +108,122 @@ const List<String> screenSaverChoices = ['drift', 'clock', 'colors'];
 /// Minutes without input before the screen saver starts (screensaver.json `minutes`; 0: never).
 const List<int> screenSaverMinutes = [1, 2, 5, 10, 20, 30, 60, 0];
 
-/// Writers of the keys that are not wired yet. Each writes one key and keeps the others.
-extension ShellConfigWrites on ConfigStore {
-  /// The seconds before the password is asked for (null: never; 15 minutes without the key).
+/// Typed readers and writers of the shell's keys.
+extension ShellSettings on SilicaSettings {
+  /// The seconds before the password is asked for (null: never; 15 minutes by default).
   int? passwordDelay() {
-    final all = read('lockscreen');
-    if (!all.containsKey('passwordDelay')) return passwordDelayDefault;
-    final v = all['passwordDelay'];
-    return v is num && v.isFinite && v >= 0 ? v.round() : null;
+    final v = getInt(
+      'lockscreen.passwordDelay',
+      fallback: passwordDelayDefault,
+    );
+    return v < 0 ? null : v;
   }
 
-  /// `null` is written as such: never (an absent key means the default).
-  void writePasswordDelay(int? seconds) {
-    final all = read('lockscreen');
-    all['passwordDelay'] = seconds;
-    replace('lockscreen', all);
-  }
+  /// `null` is never.
+  void writePasswordDelay(int? seconds) =>
+      unawaited(set('lockscreen.passwordDelay', seconds ?? -1));
 
   /// The saver chosen, and the minutes before it starts (0: never).
   String screenSaver() {
-    final v = read('screensaver')['saver'];
-    return screenSaverChoices.contains(v) ? '$v' : screenSaverChoices.first;
+    final v = getText('screensaver.saver', fallback: screenSaverChoices.first);
+    return screenSaverChoices.contains(v) ? v : screenSaverChoices.first;
   }
 
   int screenSaverAfter() {
-    final v = read('screensaver')['minutes'];
-    return v is num && v.isFinite && v > 0 ? v.round() : 0;
+    final v = getInt('screensaver.minutes', fallback: 0);
+    return v > 0 ? v : 0;
   }
 
-  void writeScreenSaver(String id) => write('screensaver', 'saver', id);
+  void writeScreenSaver(String id) => unawaited(set('screensaver.saver', id));
 
   void writeScreenSaverMinutes(int minutes) =>
-      write('screensaver', 'minutes', minutes);
+      unawaited(set('screensaver.minutes', minutes));
 
   void writeDockSizes({required double tile, required double magnified}) {
     final t = DockSizes.tile(tile);
-    write('dock', 'tileSize', t);
-    write('dock', 'magnifiedSize', DockSizes.magnified(magnified, t));
+    unawaited(
+      setMany({
+        'dock.tileSize': t,
+        'dock.magnifiedSize': DockSizes.magnified(magnified, t),
+      }),
+    );
   }
 
   void writeLaunchAnimation(LaunchAnimation value) =>
-      write('dock', 'launchAnimation', value.name);
+      unawaited(set('dock.launchAnimation', value.name));
 
-  void writeMinimizeToApp(bool value) => write('dock', 'minimizeToApp', value);
+  void writeMinimizeToApp(bool value) =>
+      unawaited(set('dock.minimizeToApp', value));
 
   void writeMenuBarAutohide(MenuBarAutohide value) =>
-      write('menubar', 'autohide', value.name);
+      unawaited(set('menubar.autohide', value.name));
 
   void writeMenuBarBackground(bool value) =>
-      write('menubar', 'background', value);
+      unawaited(set('menubar.background', value));
 
-  void writeRecentItems(int count) => write(
-    'menubar',
-    'recentItems',
-    recentItemChoices.contains(count) ? count : 10,
+  void writeRecentItems(int count) => unawaited(
+    set('menubar.recentItems', recentItemChoices.contains(count) ? count : 10),
   );
 
-  void writeClock(ClockStyle style) =>
-      write('menubar', 'clock', style.toJson());
+  void writeClock(ClockStyle style) => unawaited(
+    setMany({
+      'menubar.clock.hour24': style.hour24,
+      'menubar.clock.seconds': style.seconds,
+      'menubar.clock.weekday': style.weekday,
+      'menubar.clock.date': style.date.name,
+    }),
+  );
 
   void writeNotificationDefaults({
     PreviewMode? previews,
     GroupingMode? grouping,
   }) {
-    if (previews != null) write('notifications', 'previews', previews.name);
-    if (grouping != null) write('notifications', 'grouping', grouping.name);
+    if (previews != null) {
+      unawaited(set('notifications.previews', previews.name));
+    }
+    if (grouping != null) {
+      unawaited(
+        set('notifications.grouping', switch (grouping) {
+          GroupingMode.automatic => 'auto',
+          GroupingMode.byApp => 'app',
+          GroupingMode.off => 'off',
+        }),
+      );
+    }
   }
 
-  /// One key of one app in notifications.json `apps`, keeping the app's other keys and the
-  /// other apps. A null [value] removes the key (the app then follows the defaults).
+  /// One field of one app (`notifications.apps.<app>.<key>`). A null [value] resets the key
+  /// (the app then follows the defaults).
   void writeAppNotification(String app, String key, Object? value) {
-    final apps = read('notifications')['apps'];
-    final all = <String, Object?>{
-      if (apps is Map)
-        for (final e in apps.entries) '${e.key}': e.value,
-    };
-    final current = all[app];
-    final entry = <String, Object?>{
-      if (current is Map)
-        for (final e in current.entries) '${e.key}': e.value,
-    };
-    if (value == null) {
-      entry.remove(key);
-    } else {
-      entry[key] = value;
-    }
-    all[app] = entry;
-    write('notifications', 'apps', all);
+    final name = 'notifications.apps.$app.$key';
+    unawaited(value == null ? reset(name) : set(name, value));
   }
+
+  /// The choice, as the map of the picker's options (`image`, `color` or `wallpaper`: an id of
+  /// the Amalfi set); empty when nothing is chosen.
+  Map<String, Object?> wallpaperChoice() => {
+    for (final (json, key) in _wallpaperKeys)
+      if (getText(key, fallback: '') case final v when v.isNotEmpty) json: v,
+  };
+
+  /// Chooses a wallpaper: [choice] has one of `image`, `color`, `wallpaper` (or none: the
+  /// default); the others are cleared, so the shell never sees two at once.
+  void writeWallpaper(Map<String, Object?> choice) => unawaited(
+    setMany({
+      for (final (json, key) in _wallpaperKeys)
+        key: switch (choice[json]) {
+          final String v => v,
+          _ => '',
+        },
+    }),
+  );
 
   void writeWallpaperFit(WallpaperFit value) =>
-      write('wallpaper', 'fit', value.name);
+      unawaited(set('wallpaper.fit', value.name));
 }
+
+const List<(String, String)> _wallpaperKeys = [
+  ('image', 'wallpaper.image'),
+  ('color', 'wallpaper.color'),
+  ('wallpaper', 'wallpaper.id'),
+];
