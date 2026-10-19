@@ -501,6 +501,7 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
           ],
         ),
         if (_error case final error?) ErrorLine(error),
+        const DefaultAppsGroup(),
         SettingsGroup(
           heading: l.panoramaSection,
           unavailable: true,
@@ -1091,5 +1092,83 @@ class _Thumb extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+/// The default app of the common kinds of files and links (Launch Services, Apps1): one pop-up
+/// per kind that more than nothing opens; hidden without the registry.
+class DefaultAppsGroup extends StatefulWidget {
+  const DefaultAppsGroup({super.key});
+
+  @override
+  State<DefaultAppsGroup> createState() => _DefaultAppsGroupState();
+}
+
+class _DefaultAppsGroupState extends State<DefaultAppsGroup> {
+  /// The kinds: the type asked (and set), with the label.
+  static const List<String> types = [
+    'x-scheme-handler/mailto',
+    'text/plain',
+    'image/png',
+    'application/pdf',
+    'video/mp4',
+    'audio/mpeg',
+  ];
+
+  final Map<String, List<String>> _apps = {};
+  final Map<String, String?> _defaults = {};
+  Map<String, String> _names = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_load());
+  }
+
+  Future<void> _load() async {
+    final installed = await SilicaApps.list();
+    if (installed == null || !mounted) return;
+    final names = {for (final a in installed) a.id: a.name};
+    for (final type in types) {
+      final apps = await SilicaApps.appsFor(type);
+      final current = await SilicaApps.defaultFor(type);
+      if (!mounted) return;
+      _apps[type] = apps;
+      _defaults[type] = current;
+    }
+    setState(() => _names = names);
+  }
+
+  String _label(AppLocalizations l, String type) => switch (type) {
+    'x-scheme-handler/mailto' => l.defaultAppMail,
+    'text/plain' => l.defaultAppText,
+    'image/png' => l.defaultAppImages,
+    'application/pdf' => l.defaultAppPdf,
+    'video/mp4' => l.defaultAppVideo,
+    _ => l.defaultAppMusic,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final rows = [
+      for (final type in types)
+        if ((_apps[type] ?? const []).isNotEmpty)
+          PopUpRow<String>(
+            key: ValueKey('default app $type'),
+            title: _label(l, type),
+            items: [
+              for (final id in _apps[type]!) PopUpItem(id, _names[id] ?? id),
+            ],
+            value: _defaults[type],
+            onChanged: (id) async {
+              await SilicaApps.setDefault(type, id);
+              if (!mounted) return;
+              setState(() => _defaults[type] = id);
+            },
+          ),
+    ];
+    if (rows.isEmpty) return const SizedBox.shrink();
+    return SettingsGroup(heading: l.defaultAppsHeading, children: rows);
   }
 }

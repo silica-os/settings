@@ -3985,6 +3985,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The app could not be opened: {reason}'**
   String securityOpenAnywayFailed(String reason);
+
+  /// Software Update: while checking
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates…'**
+  String get updateChecking;
+
+  /// Software Update: no update found
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is up to date.'**
+  String get updateNone;
+
+  /// Software Update: no daemon
+  ///
+  /// In en, this message translates to:
+  /// **'The update service is not running.'**
+  String get updateUnavailable;
+
+  /// Software Update: versions of an update
+  ///
+  /// In en, this message translates to:
+  /// **'{current} → {available}'**
+  String updateFrom(String current, String available);
+
+  /// Software Update: the version available
+  ///
+  /// In en, this message translates to:
+  /// **'Version {available}'**
+  String updateTo(String available);
+
+  /// Software Update: install one update
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateButton;
+
+  /// Software Update: install every update
+  ///
+  /// In en, this message translates to:
+  /// **'Update All'**
+  String get updateAll;
+
+  /// Software Update: an update was installed
+  ///
+  /// In en, this message translates to:
+  /// **'Updated.'**
+  String get updateInstalledNow;
+
+  /// Software Update: the app runs
+  ///
+  /// In en, this message translates to:
+  /// **'Updated when the app quits.'**
+  String get updatePendingRestart;
+
+  /// Software Update: the system update is staged
+  ///
+  /// In en, this message translates to:
+  /// **'Restart to finish the update.'**
+  String get updateStaged;
+
+  /// Software Update: an update failed
+  ///
+  /// In en, this message translates to:
+  /// **'The update failed: {reason}'**
+  String updateFailed(String reason);
+
+  /// Software Update: the name of the system update
+  ///
+  /// In en, this message translates to:
+  /// **'Silica'**
+  String get updateSystem;
+
+  /// Storage: heading of the data apps keep in ~/.var/app
+  ///
+  /// In en, this message translates to:
+  /// **'App data'**
+  String get storageAppData;
+
+  /// Storage: footer of the app data group
+  ///
+  /// In en, this message translates to:
+  /// **'Apps keep their data after they are removed. Delete it here when you no longer need it.'**
+  String get storageAppDataHelp;
+
+  /// Storage: data of an app that is gone
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (not installed)'**
+  String storageNotInstalled(String name);
+
+  /// Storage: delete an app's data
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get storageDeleteData;
+
+  /// Storage: confirm deleting app data
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the data of {name}?'**
+  String storageDeleteDataTitle(String name);
+
+  /// Storage: what deleting app data does
+  ///
+  /// In en, this message translates to:
+  /// **'Its documents, settings and caches in the app\'s own folder are deleted for good.'**
+  String get storageDeleteDataMessage;
+
+  /// Desktop & Dock: heading of the default apps
+  ///
+  /// In en, this message translates to:
+  /// **'Default apps'**
+  String get defaultAppsHeading;
+
+  /// Default apps: email links
+  ///
+  /// In en, this message translates to:
+  /// **'Mail'**
+  String get defaultAppMail;
+
+  /// Default apps: plain text
+  ///
+  /// In en, this message translates to:
+  /// **'Text documents'**
+  String get defaultAppText;
+
+  /// Default apps: pictures
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get defaultAppImages;
+
+  /// Default apps: PDF
+  ///
+  /// In en, this message translates to:
+  /// **'PDF documents'**
+  String get defaultAppPdf;
+
+  /// Default apps: videos
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get defaultAppVideo;
+
+  /// Default apps: audio
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get defaultAppMusic;
 }
 
 class _AppLocalizationsDelegate

@@ -11,6 +11,7 @@
 // belong to its own services and are left out.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/widgets.dart';
@@ -432,6 +433,127 @@ class _StoragePaneState extends State<StoragePane> {
           ],
         ),
         if (_trashError case final error?) ErrorLine(error),
+        const AppDataGroup(),
+      ],
+    );
+  }
+}
+
+/// The data apps keep in `~/.var/app/<id>` (the sandbox's home of app bundles and Flatpak
+/// apps): its size, and Delete for apps that are no longer installed.
+class AppDataGroup extends StatefulWidget {
+  const AppDataGroup({super.key});
+
+  @override
+  State<AppDataGroup> createState() => _AppDataGroupState();
+}
+
+class _AppDataGroupState extends State<AppDataGroup> {
+  List<String>? _ids;
+  Map<String, String> _names = const {};
+  final Map<String, int> _sizes = {};
+  String? _error;
+
+  String get _root => '${ServicesScope.of(context).env['HOME'] ?? ''}/.var/app';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_ids == null) unawaited(_load());
+  }
+
+  Future<void> _load() async {
+    final root = Directory(_root);
+    final ids = <String>[];
+    try {
+      for (final e in root.listSync()) {
+        if (e is Directory) ids.add(e.path.split('/').last);
+      }
+    } on FileSystemException {
+      // No app data yet.
+    }
+    ids.sort();
+    final installed = await SilicaApps.list();
+    if (!mounted) return;
+    setState(() {
+      _ids = ids;
+      _names = {
+        for (final a in installed ?? const <SilicaInstalledApp>[]) a.id: a.name,
+      };
+    });
+    final run = ServicesScope.of(context).host.run;
+    for (final id in ids) {
+      final size = await folderSize(run, '$_root/$id');
+      if (!mounted) return;
+      setState(() => _sizes[id] = size ?? 0);
+    }
+  }
+
+  Future<void> _delete(String id, String name) async {
+    final l = AppLocalizations.of(context);
+    final confirmed = await showConfirm(
+      context,
+      title: l.storageDeleteDataTitle(name),
+      message: l.storageDeleteDataMessage,
+      confirm: l.storageDeleteData,
+      cancel: l.cancel,
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      Directory('$_root/$id').deleteSync(recursive: true);
+      setState(() => _error = null);
+    } on FileSystemException catch (e) {
+      setState(() => _error = e.osError?.message ?? e.message);
+    }
+    _sizes.remove(id);
+    await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final colors = SettingsColors.of(context);
+    final ids = _ids ?? const [];
+    if (ids.isEmpty) return const SizedBox.shrink();
+    return Column(
+      children: [
+        SettingsGroup(
+          heading: l.storageAppData,
+          footer: l.storageAppDataHelp,
+          children: [
+            for (final id in ids)
+              ValueRow(
+                key: ValueKey('app data $id'),
+                title: switch (_names[id]) {
+                  final name? => name,
+                  null => l.storageNotInstalled(id),
+                },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!_sizes.containsKey(id))
+                      const AmalfiSpinner(size: AmalfiProgressSize.small)
+                    else
+                      Text(
+                        formatBytes(_sizes[id] ?? 0),
+                        style: settingsText(13, colors.secondary),
+                      ),
+                    // Only the data of apps that are gone: an installed app still uses its own.
+                    if (!_names.containsKey(id)) ...[
+                      const SizedBox(width: 10),
+                      AmalfiPushButton(
+                        key: ValueKey('delete data $id'),
+                        label: l.storageDeleteData,
+                        size: AmalfiControlSize.small,
+                        onPressed: () => unawaited(_delete(id, id)),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        ),
+        if (_error case final error?) ErrorLine(error),
       ],
     );
   }
@@ -1005,13 +1127,68 @@ class _LanguagePaneState extends State<LanguagePane> {
   }
 }
 
-class _SoftwareUpdatePane extends StatelessWidget {
+class _SoftwareUpdatePane extends StatefulWidget {
   const _SoftwareUpdatePane();
+
+  @override
+  State<_SoftwareUpdatePane> createState() => _SoftwareUpdatePaneState();
+}
+
+/// General › Software Update (silica-desktop docs/spec/updates.md): the system, the app
+/// bundles, AppImages and Flatpak apps together, from silica-daemon's Updates1. It checks when
+/// opened and with Check Now; nothing installs without a click.
+class _SoftwareUpdatePaneState extends State<_SoftwareUpdatePane> {
+  List<SilicaUpdate>? _updates;
+  bool _checking = false;
+  bool _missing = false;
+  final Map<String, String> _results = {};
+  final Set<String> _busy = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check() async {
+    setState(() => _checking = true);
+    final updates = await SilicaUpdates.check();
+    if (!mounted) return;
+    setState(() {
+      _checking = false;
+      _missing = updates == null;
+      _updates = updates ?? const [];
+    });
+  }
+
+  Future<void> _update(String id) async {
+    setState(() => _busy.add(id));
+    final result = await SilicaUpdates.update(id);
+    if (!mounted) return;
+    setState(() {
+      _busy.remove(id);
+      _results[id] = result;
+    });
+  }
+
+  String _result(AppLocalizations l, String result) => switch (result) {
+    'installed' => l.updateInstalledNow,
+    'pending_restart' => l.updatePendingRestart,
+    'staged' => l.updateStaged,
+    final other => l.updateFailed(
+      other.replaceFirst(RegExp(r'^failed:?\s*'), ''),
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final info = HostInfoScope.of(context);
+    final updates = _updates ?? const [];
+    final pending = [
+      for (final u in updates)
+        if (!_results.containsKey(u.id)) u,
+    ];
     return PanePage(
       children: [
         SettingsGroup(
@@ -1022,20 +1199,57 @@ class _SoftwareUpdatePane extends StatelessWidget {
                 info.osPrettyName.isEmpty ? l.aboutUnknown : info.osPrettyName,
               ),
             ),
-          ],
-        ),
-        SettingsGroup(
-          unavailable: true,
-          issue: Issues.general,
-          children: [
             ButtonRow(
-              title: l.updateCheck,
+              key: const ValueKey('update check'),
+              title: _checking
+                  ? l.updateChecking
+                  : _missing
+                  ? l.updateUnavailable
+                  : updates.isEmpty
+                  ? l.updateNone
+                  : l.updateCheck,
               label: l.updateCheckButton,
-              onPressed: () {},
+              onPressed: _checking ? null : () => unawaited(_check()),
             ),
-            SwitchRow(title: l.updateAutomatic, value: false),
           ],
         ),
+        if (updates.isNotEmpty)
+          SettingsGroup(
+            children: [
+              for (final u in updates)
+                ButtonRow(
+                  key: ValueKey('update ${u.id}'),
+                  title: u.kind == 'system' ? l.updateSystem : u.name,
+                  subtitle: switch (_results[u.id]) {
+                    final result? => _result(l, result),
+                    null =>
+                      u.current.isEmpty
+                          ? l.updateTo(u.available)
+                          : l.updateFrom(u.current, u.available),
+                  },
+                  label: l.updateButton,
+                  onPressed: _results.containsKey(u.id) || _busy.contains(u.id)
+                      ? null
+                      : () => unawaited(_update(u.id)),
+                ),
+            ],
+          ),
+        if (pending.length > 1)
+          ButtonBar(
+            buttons: [
+              AmalfiPushButton(
+                key: const ValueKey('update all'),
+                label: l.updateAll,
+                onPressed: _busy.isNotEmpty
+                    ? null
+                    : () async {
+                        for (final u in pending) {
+                          await _update(u.id);
+                        }
+                      },
+              ),
+            ],
+          ),
       ],
     );
   }

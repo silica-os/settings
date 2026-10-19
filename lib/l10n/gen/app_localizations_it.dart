@@ -2129,4 +2129,91 @@ class AppLocalizationsIt extends AppLocalizations {
   String securityOpenAnywayFailed(String reason) {
     return 'Impossibile aprire l’app: $reason';
   }
+
+  @override
+  String get updateChecking => 'Ricerca aggiornamenti…';
+
+  @override
+  String get updateNone => 'È tutto aggiornato.';
+
+  @override
+  String get updateUnavailable => 'Il servizio di aggiornamento non è attivo.';
+
+  @override
+  String updateFrom(String current, String available) {
+    return '$current → $available';
+  }
+
+  @override
+  String updateTo(String available) {
+    return 'Versione $available';
+  }
+
+  @override
+  String get updateButton => 'Aggiorna';
+
+  @override
+  String get updateAll => 'Aggiorna tutto';
+
+  @override
+  String get updateInstalledNow => 'Aggiornata.';
+
+  @override
+  String get updatePendingRestart => 'Verrà aggiornata alla chiusura dell’app.';
+
+  @override
+  String get updateStaged => 'Riavvia per completare l’aggiornamento.';
+
+  @override
+  String updateFailed(String reason) {
+    return 'Aggiornamento non riuscito: $reason';
+  }
+
+  @override
+  String get updateSystem => 'Silica';
+
+  @override
+  String get storageAppData => 'Dati delle app';
+
+  @override
+  String get storageAppDataHelp =>
+      'Le app conservano i loro dati anche dopo la rimozione. Eliminali qui quando non ti servono più.';
+
+  @override
+  String storageNotInstalled(String name) {
+    return '$name (non installata)';
+  }
+
+  @override
+  String get storageDeleteData => 'Elimina';
+
+  @override
+  String storageDeleteDataTitle(String name) {
+    return 'Eliminare i dati di $name?';
+  }
+
+  @override
+  String get storageDeleteDataMessage =>
+      'Documenti, impostazioni e cache nella cartella dell’app vengono eliminati per sempre.';
+
+  @override
+  String get defaultAppsHeading => 'App predefinite';
+
+  @override
+  String get defaultAppMail => 'Mail';
+
+  @override
+  String get defaultAppText => 'Documenti di testo';
+
+  @override
+  String get defaultAppImages => 'Immagini';
+
+  @override
+  String get defaultAppPdf => 'Documenti PDF';
+
+  @override
+  String get defaultAppVideo => 'Video';
+
+  @override
+  String get defaultAppMusic => 'Musica';
 }

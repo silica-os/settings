@@ -2123,4 +2123,91 @@ class AppLocalizationsEn extends AppLocalizations {
   String securityOpenAnywayFailed(String reason) {
     return 'The app could not be opened: $reason';
   }
+
+  @override
+  String get updateChecking => 'Checking for updates…';
+
+  @override
+  String get updateNone => 'Everything is up to date.';
+
+  @override
+  String get updateUnavailable => 'The update service is not running.';
+
+  @override
+  String updateFrom(String current, String available) {
+    return '$current → $available';
+  }
+
+  @override
+  String updateTo(String available) {
+    return 'Version $available';
+  }
+
+  @override
+  String get updateButton => 'Update';
+
+  @override
+  String get updateAll => 'Update All';
+
+  @override
+  String get updateInstalledNow => 'Updated.';
+
+  @override
+  String get updatePendingRestart => 'Updated when the app quits.';
+
+  @override
+  String get updateStaged => 'Restart to finish the update.';
+
+  @override
+  String updateFailed(String reason) {
+    return 'The update failed: $reason';
+  }
+
+  @override
+  String get updateSystem => 'Silica';
+
+  @override
+  String get storageAppData => 'App data';
+
+  @override
+  String get storageAppDataHelp =>
+      'Apps keep their data after they are removed. Delete it here when you no longer need it.';
+
+  @override
+  String storageNotInstalled(String name) {
+    return '$name (not installed)';
+  }
+
+  @override
+  String get storageDeleteData => 'Delete';
+
+  @override
+  String storageDeleteDataTitle(String name) {
+    return 'Delete the data of $name?';
+  }
+
+  @override
+  String get storageDeleteDataMessage =>
+      'Its documents, settings and caches in the app\'s own folder are deleted for good.';
+
+  @override
+  String get defaultAppsHeading => 'Default apps';
+
+  @override
+  String get defaultAppMail => 'Mail';
+
+  @override
+  String get defaultAppText => 'Text documents';
+
+  @override
+  String get defaultAppImages => 'Images';
+
+  @override
+  String get defaultAppPdf => 'PDF documents';
+
+  @override
+  String get defaultAppVideo => 'Videos';
+
+  @override
+  String get defaultAppMusic => 'Music';
 }

@@ -1,7 +1,6 @@
 // Privacy & Security: where apps may come from, and Open Anyway (Gatekeeper, Trust1).
 
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silica_settings/src/model/panes.dart';
 import 'package:silica_ui/silica_ui.dart';
