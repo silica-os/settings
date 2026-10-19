@@ -139,9 +139,6 @@ class PrivacyPane extends StatelessWidget {
           title: l.panePrivacy,
           description: l.privacyDescription,
         ),
-        // Gatekeeper (silica-desktop docs/spec/trust.md): where apps may come from, and Open
-        // Anyway for the apps blocked in the last hour.
-        const AppSourcesGroup(),
         SettingsGroup(
           unavailable: true,
           issue: Issues.privacy,
@@ -161,6 +158,10 @@ class PrivacyPane extends StatelessWidget {
               ),
           ],
         ),
+        // Gatekeeper (silica-desktop docs/spec/trust.md): where apps may come from, and Open
+        // Anyway for the apps blocked in the last hour; under the heading Security, after the
+        // permission card (kit `Privacy & Security`).
+        const AppSourcesGroup(),
       ],
     );
   }
