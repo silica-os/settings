@@ -2100,4 +2100,33 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get replacementsAdd => 'Aggiungi';
+
+  @override
+  String get securityHeading => 'Sicurezza';
+
+  @override
+  String get securityAllowFrom => 'Consenti app da';
+
+  @override
+  String get securityTrusted => 'Flathub e sviluppatori identificati';
+
+  @override
+  String get securityAnywhere => 'Ovunque';
+
+  @override
+  String get securityAllowHelp =>
+      'Le app non firmate, o il cui sviluppatore non è identificato, non si aprono finché non le consenti qui.';
+
+  @override
+  String securityBlocked(String app) {
+    return '“$app” è stata bloccata per proteggere Silica.';
+  }
+
+  @override
+  String get securityOpenAnyway => 'Apri comunque';
+
+  @override
+  String securityOpenAnywayFailed(String reason) {
+    return 'Impossibile aprire l’app: $reason';
+  }
 }

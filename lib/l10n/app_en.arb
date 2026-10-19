@@ -857,5 +857,21 @@
   "replacementsIncomplete": "Needs both texts.",
   "replacementsNoSpaces": "No spaces in the shortcut.",
   "replacementsRepeated": "Already used.",
-  "replacementsAdd": "Add"
+  "replacementsAdd": "Add",
+  "securityHeading": "Security",
+  "@securityHeading": {"description": "Privacy & Security: heading of the app sources group"},
+  "securityAllowFrom": "Allow applications from",
+  "@securityAllowFrom": {"description": "Privacy & Security: where apps may come from"},
+  "securityTrusted": "Flathub and identified developers",
+  "@securityTrusted": {"description": "Privacy & Security: the default app sources"},
+  "securityAnywhere": "Anywhere",
+  "@securityAnywhere": {"description": "Privacy & Security: any app source (set from the command line)"},
+  "securityAllowHelp": "Apps that are not signed, or whose developer is not identified, do not open until you allow them here.",
+  "@securityAllowHelp": {"description": "Privacy & Security: footer of the app sources group"},
+  "securityBlocked": "“{app}” was blocked to protect Silica.",
+  "@securityBlocked": {"description": "Privacy & Security: an app Gatekeeper blocked", "placeholders": {"app": {"type": "String"}}},
+  "securityOpenAnyway": "Open Anyway",
+  "@securityOpenAnyway": {"description": "Privacy & Security: open a blocked app"},
+  "securityOpenAnywayFailed": "The app could not be opened: {reason}",
+  "@securityOpenAnywayFailed": {"description": "Privacy & Security: Open Anyway refused", "placeholders": {"reason": {"type": "String"}}}
 }

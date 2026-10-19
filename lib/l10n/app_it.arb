@@ -653,5 +653,13 @@
   "replacementsIncomplete": "Servono entrambi i testi.",
   "replacementsNoSpaces": "Niente spazi nell'abbreviazione.",
   "replacementsRepeated": "Già usata.",
-  "replacementsAdd": "Aggiungi"
+  "replacementsAdd": "Aggiungi",
+  "securityHeading": "Sicurezza",
+  "securityAllowFrom": "Consenti app da",
+  "securityTrusted": "Flathub e sviluppatori identificati",
+  "securityAnywhere": "Ovunque",
+  "securityAllowHelp": "Le app non firmate, o il cui sviluppatore non è identificato, non si aprono finché non le consenti qui.",
+  "securityBlocked": "“{app}” è stata bloccata per proteggere Silica.",
+  "securityOpenAnyway": "Apri comunque",
+  "securityOpenAnywayFailed": "Impossibile aprire l’app: {reason}"
 }

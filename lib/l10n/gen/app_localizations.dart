@@ -3937,6 +3937,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get replacementsAdd;
+
+  /// Privacy & Security: heading of the app sources group
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get securityHeading;
+
+  /// Privacy & Security: where apps may come from
+  ///
+  /// In en, this message translates to:
+  /// **'Allow applications from'**
+  String get securityAllowFrom;
+
+  /// Privacy & Security: the default app sources
+  ///
+  /// In en, this message translates to:
+  /// **'Flathub and identified developers'**
+  String get securityTrusted;
+
+  /// Privacy & Security: any app source (set from the command line)
+  ///
+  /// In en, this message translates to:
+  /// **'Anywhere'**
+  String get securityAnywhere;
+
+  /// Privacy & Security: footer of the app sources group
+  ///
+  /// In en, this message translates to:
+  /// **'Apps that are not signed, or whose developer is not identified, do not open until you allow them here.'**
+  String get securityAllowHelp;
+
+  /// Privacy & Security: an app Gatekeeper blocked
+  ///
+  /// In en, this message translates to:
+  /// **'“{app}” was blocked to protect Silica.'**
+  String securityBlocked(String app);
+
+  /// Privacy & Security: open a blocked app
+  ///
+  /// In en, this message translates to:
+  /// **'Open Anyway'**
+  String get securityOpenAnyway;
+
+  /// Privacy & Security: Open Anyway refused
+  ///
+  /// In en, this message translates to:
+  /// **'The app could not be opened: {reason}'**
+  String securityOpenAnywayFailed(String reason);
 }
 
 class _AppLocalizationsDelegate

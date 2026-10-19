@@ -138,6 +138,9 @@ class PrivacyPane extends StatelessWidget {
           title: l.panePrivacy,
           description: l.privacyDescription,
         ),
+        // Gatekeeper (silica-desktop docs/spec/trust.md): where apps may come from, and Open
+        // Anyway for the apps blocked in the last hour.
+        const AppSourcesGroup(),
         SettingsGroup(
           unavailable: true,
           issue: Issues.privacy,
@@ -158,6 +161,86 @@ class PrivacyPane extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// "Allow applications from" and the blocked apps with Open Anyway.
+class AppSourcesGroup extends StatefulWidget {
+  const AppSourcesGroup({super.key});
+
+  @override
+  State<AppSourcesGroup> createState() => _AppSourcesGroupState();
+}
+
+class _AppSourcesGroupState extends State<AppSourcesGroup> {
+  static const String key = 'security.appSources';
+  List<SilicaBlockedApp> _blocked = const [];
+  String? _error;
+  Timer? _refresh;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    // A block happens while the pane is open (an app launched from the Dock): look again.
+    _refresh = Timer.periodic(const Duration(seconds: 5), (_) => _load());
+  }
+
+  @override
+  void dispose() {
+    _refresh?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    final blocked = await SilicaTrust.blocked();
+    if (mounted) setState(() => _blocked = blocked);
+  }
+
+  Future<void> _openAnyway(SilicaBlockedApp app) async {
+    final (opened, error) = await SilicaTrust.openAnyway(app.path);
+    if (!mounted) return;
+    setState(() => _error = opened ? null : error);
+    await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final settings = ServicesScope.of(context).settings;
+    return ListenableBuilder(
+      listenable: settings.watch([key]),
+      builder: (context, _) {
+        final value = settings.getText(key, fallback: 'trusted');
+        return SettingsGroup(
+          heading: l.securityHeading,
+          footer: _error == null
+              ? l.securityAllowHelp
+              : l.securityOpenAnywayFailed(_error!),
+          children: [
+            PopUpRow<String>(
+              key: const ValueKey('security app sources'),
+              title: l.securityAllowFrom,
+              items: [
+                PopUpItem('trusted', l.securityTrusted),
+                // "Anywhere" is set from the command line; then it shows, as on the reference.
+                if (value == 'anywhere')
+                  PopUpItem('anywhere', l.securityAnywhere),
+              ],
+              value: value,
+              onChanged: (v) => unawaited(settings.set(key, v)),
+            ),
+            for (final app in _blocked)
+              ButtonRow(
+                key: ValueKey('security blocked ${app.path}'),
+                title: l.securityBlocked(app.name),
+                label: l.securityOpenAnyway,
+                onPressed: () => unawaited(_openAnyway(app)),
+              ),
+          ],
+        );
+      },
     );
   }
 }
