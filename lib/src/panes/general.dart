@@ -30,6 +30,7 @@ import '../ui/errors.dart';
 import '../ui/grouped.dart';
 import '../ui/popup.dart';
 import '../ui/symbol.dart';
+import 'storage_apps.dart';
 import 'security.dart'
     show
         AccessibilityDisplayPane,
@@ -433,6 +434,7 @@ class _StoragePaneState extends State<StoragePane> {
           ],
         ),
         if (_trashError case final error?) ErrorLine(error),
+        const ApplicationsGroup(),
         const AppDataGroup(),
       ],
     );
@@ -1189,6 +1191,7 @@ class _SoftwareUpdatePaneState extends State<_SoftwareUpdatePane> {
       for (final u in updates)
         if (!_results.containsKey(u.id)) u,
     ];
+    final settings = ServicesScope.of(context).settings;
     return PanePage(
       children: [
         SettingsGroup(
@@ -1212,6 +1215,40 @@ class _SoftwareUpdatePaneState extends State<_SoftwareUpdatePane> {
               onPressed: _checking ? null : () => unawaited(_check()),
             ),
           ],
+        ),
+        // The daemon's daily check and the automatic install (Settings1, updates.md).
+        ListenableBuilder(
+          listenable: settings.watch(const [
+            'updates.autoCheck',
+            'updates.autoInstall',
+          ]),
+          builder: (context, _) {
+            final check = settings.getBool('updates.autoCheck', fallback: true);
+            final install = settings.getBool(
+              'updates.autoInstall',
+              fallback: false,
+            );
+            return SettingsGroup(
+              children: [
+                SwitchRow(
+                  key: const ValueKey('update auto check'),
+                  title: l.updateAutoCheck,
+                  value: check,
+                  onChanged: (on) =>
+                      unawaited(settings.set('updates.autoCheck', on)),
+                ),
+                SwitchRow(
+                  key: const ValueKey('update auto install'),
+                  title: l.updateAutoInstall,
+                  value: install,
+                  onChanged: check
+                      ? (on) =>
+                            unawaited(settings.set('updates.autoInstall', on))
+                      : null,
+                ),
+              ],
+            );
+          },
         ),
         if (updates.isNotEmpty)
           SettingsGroup(

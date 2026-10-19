@@ -1482,9 +1482,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dockScale => 'Effetto scala';
 
   @override
-  String get desktopDefaultBrowser => 'Browser web predefinito';
-
-  @override
   String get wallpaperAllSpaces => 'Mostra su tutti gli spazi';
 
   @override
@@ -2203,17 +2200,67 @@ class AppLocalizationsIt extends AppLocalizations {
   String get defaultAppMail => 'Mail';
 
   @override
-  String get defaultAppText => 'Documenti di testo';
+  String get securityFlathub => 'Flathub';
 
   @override
-  String get defaultAppImages => 'Immagini';
+  String get securityAnywhereHelp =>
+      'Impostato dalla riga di comando. Le app da qualsiasi origine si aprono senza controllo.';
 
   @override
-  String get defaultAppPdf => 'Documenti PDF';
+  String get updateAutoCheck => 'Cerca aggiornamenti automaticamente';
 
   @override
-  String get defaultAppVideo => 'Video';
+  String get updateAutoInstall => 'Installa gli aggiornamenti automaticamente';
 
   @override
-  String get defaultAppMusic => 'Musica';
+  String get storageApplications => 'Applicazioni';
+
+  @override
+  String get storageKindBundle => 'Bundle app';
+
+  @override
+  String get storageKindFlatpak => 'Flatpak';
+
+  @override
+  String get storageKindAppImage => 'AppImage';
+
+  @override
+  String get storageKindSystem => 'App di sistema';
+
+  @override
+  String storageRemoveApp(String app) {
+    return 'Rimuovi “$app”';
+  }
+
+  @override
+  String get storageQuitAndMove => 'Esci e sposta';
+
+  @override
+  String storageQuitAndMoveTitle(String app) {
+    return '“$app” è aperta. Vuoi uscire e spostarla nel Cestino?';
+  }
+
+  @override
+  String storageQuitFailed(String app) {
+    return '“$app” non è uscita.';
+  }
+
+  @override
+  String storageRemoveFailed(String app) {
+    return 'Impossibile rimuovere “$app”.';
+  }
+
+  @override
+  String storageRemoveFailedReason(String app, String reason) {
+    return 'Impossibile spostare “$app” nel Cestino: $reason';
+  }
+
+  @override
+  String get defaultAppBrowser => 'Browser web';
+
+  @override
+  String get defaultAppTextEditor => 'Editor di testo';
+
+  @override
+  String get defaultAppImageViewer => 'Visualizzatore di immagini';
 }

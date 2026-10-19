@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silica_settings/src/model/panes.dart';
+import 'package:silica_settings/src/ui/app_install.dart';
 import 'package:silica_ui/silica_ui.dart';
 
 import 'fakes.dart';
@@ -89,7 +90,7 @@ void main() {
             [
               'dev.example.Kept',
               'Kept',
-              'bundle',
+              'system',
               '/x',
               {'id': 'dev.example.Kept', 'name': 'Kept', 'exec': 'x'},
             ],
@@ -150,12 +151,12 @@ void main() {
           ],
         ],
         'AppsFor' => [
-          args.first == 'application/pdf'
+          args.first == 'text/plain'
               ? ['dev.frascella.Preview', 'org.gnome.Papers']
               : <String>[],
         ],
         'DefaultFor' => [
-          args.first == 'application/pdf' ? 'dev.frascella.Preview' : '',
+          args.first == 'text/plain' ? 'dev.frascella.Preview' : '',
         ],
         'SetDefault' => () {
           set.add('${args[0]} ${args[1]}');
@@ -166,10 +167,20 @@ void main() {
     });
     await pumpSettings(tester, pane: PaneId.desktopDock, height: 2400);
     await settle(tester);
-    expect(find.text('PDF documents'), findsOneWidget);
+    expect(find.text('Text editor'), findsOneWidget);
     // Kinds no app opens are not offered.
-    expect(find.text('Images'), findsNothing);
-    await choose(tester, 'default app application/pdf', 'Papers');
-    expect(set, ['application/pdf org.gnome.Papers']);
+    expect(find.text('Image viewer'), findsNothing);
+    await tester.tap(find.byType(AppPopUp));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AmalfiMenu),
+        matching: find.text('Papers'),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(set, ['text/plain org.gnome.Papers']);
   });
 }

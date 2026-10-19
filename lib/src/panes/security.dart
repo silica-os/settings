@@ -15,6 +15,7 @@ import '../model/panes.dart';
 import '../services.dart';
 import '../style.dart';
 import '../model/issues.dart';
+import '../system/app_install.dart';
 import '../system/shell_config.dart';
 import '../system/tools.dart';
 import '../ui/grouped.dart';
@@ -205,6 +206,12 @@ class _AppSourcesGroupState extends State<AppSourcesGroup> {
     await _load();
   }
 
+  String _label(AppLocalizations l, String value) => switch (value) {
+    'flathub' => l.securityFlathub,
+    'anywhere' => l.securityAnywhere,
+    _ => l.securityTrusted,
+  };
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -213,31 +220,56 @@ class _AppSourcesGroupState extends State<AppSourcesGroup> {
       listenable: settings.watch([key]),
       builder: (context, _) {
         final value = settings.getText(key, fallback: 'trusted');
-        return SettingsGroup(
-          heading: l.securityHeading,
-          footer: _error == null
-              ? l.securityAllowHelp
-              : l.securityOpenAnywayFailed(_error!),
+        // Only the most recent block shows (the daemon lists the last hour).
+        final latest = _blocked.isEmpty
+            ? null
+            : _blocked.reduce((a, b) => b.time > a.time ? b : a);
+        final values = appSourceValues(value);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            PopUpRow<String>(
-              key: const ValueKey('security app sources'),
-              title: l.securityAllowFrom,
-              items: [
-                PopUpItem('trusted', l.securityTrusted),
-                // "Anywhere" is set from the command line; then it shows, as on the reference.
-                if (value == 'anywhere')
-                  PopUpItem('anywhere', l.securityAnywhere),
+            SettingsGroup(
+              heading: l.securityHeading,
+              // The caption says what "Anywhere" means; otherwise the help or the error.
+              footer: _error != null
+                  ? l.securityOpenAnywayFailed(_error!)
+                  : value == 'anywhere'
+                  ? l.securityAnywhereHelp
+                  : l.securityAllowHelp,
+              children: [
+                ValueRow(
+                  key: const ValueKey('security app sources'),
+                  title: l.securityAllowFrom,
+                  height: 48,
+                  trailing: AmalfiPopUpButton<String>(
+                    // "Anywhere" is set from the command line; then it shows, checked.
+                    items: [
+                      for (final v in values)
+                        AmalfiPopUpItem(value: v, label: _label(l, v)),
+                    ],
+                    value: values.contains(value) ? value : null,
+                    onChanged: (v) => unawaited(settings.set(key, v)),
+                    width: regularPopUpWidth(_label(l, value)),
+                    semanticLabel: l.securityAllowFrom,
+                  ),
+                ),
+                if (latest != null)
+                  ValueRow(
+                    key: ValueKey('security blocked ${latest.path}'),
+                    title: l.securityBlocked(latest.name),
+                    // 48 + the separator + 47: the card is 96 tall (kit Security Card).
+                    height: 47,
+                    // The kit's Open Anyway is 116 wide (Buttons/Push/Secondary/Regular).
+                    trailing: ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 116),
+                      child: AmalfiPushButton(
+                        label: l.securityOpenAnyway,
+                        onPressed: () => unawaited(_openAnyway(latest)),
+                      ),
+                    ),
+                  ),
               ],
-              value: value,
-              onChanged: (v) => unawaited(settings.set(key, v)),
             ),
-            for (final app in _blocked)
-              ButtonRow(
-                key: ValueKey('security blocked ${app.path}'),
-                title: l.securityBlocked(app.name),
-                label: l.securityOpenAnyway,
-                onPressed: () => unawaited(_openAnyway(app)),
-              ),
           ],
         );
       },

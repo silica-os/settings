@@ -156,7 +156,7 @@ List<SearchEntry> searchIndex(AppLocalizations l, Iterable<PaneId> panes) {
     at(l.dockAutoHide, PaneId.desktopDock),
     at(l.dockPosition, PaneId.desktopDock),
     at(l.dockMinimizeEffect, PaneId.desktopDock),
-    at(l.desktopDefaultBrowser, PaneId.desktopDock),
+    at(l.defaultAppsHeading, PaneId.desktopDock),
     at(l.dateTimeZone, PaneId.general, SubPaneId.dateTime),
     at(l.sharingComputerName, PaneId.general, SubPaneId.sharing),
     at(l.languageRegion, PaneId.general, SubPaneId.languageRegion),

@@ -18,9 +18,9 @@ import '../model/panes.dart';
 import '../services.dart';
 import '../style.dart';
 import '../system/amalfi_wallpapers.dart';
+import '../system/app_install.dart';
 import '../system/shell_config.dart';
-import '../system/tools.dart';
-import '../ui/errors.dart';
+import '../ui/app_install.dart';
 import '../ui/grouped.dart';
 import '../ui/symbol.dart';
 import 'input.dart' show showShortcuts;
@@ -239,9 +239,6 @@ class DesktopDockPane extends StatefulWidget {
 }
 
 class _DesktopDockPaneState extends State<DesktopDockPane> {
-  List<AppEntry> _browsers = const [];
-  String _browser = '';
-  String? _error;
   bool _loaded = false;
   Listenable? _keys;
 
@@ -279,19 +276,6 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
     if (!_loaded) {
       _loaded = true;
       _startWatching(ServicesScope.of(context).settings);
-      _loadBrowsers();
-    }
-  }
-
-  Future<void> _loadBrowsers() async {
-    final tools = ServicesScope.of(context).tools;
-    final list = await tools.browsers();
-    final current = await tools.defaultBrowser();
-    if (mounted) {
-      setState(() {
-        _browsers = list;
-        _browser = current;
-      });
     }
   }
 
@@ -330,11 +314,6 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
       TitleBarAction.values,
       fallback: TitleBarAction.zoom,
     );
-    final browsers = [
-      ..._browsers,
-      if (_browser.isNotEmpty && !_browsers.any((b) => b.id == _browser))
-        AppEntry(id: _browser, name: _browser.replaceAll('.desktop', '')),
-    ];
     return PanePage(
       children: [
         SettingsGroup(
@@ -479,28 +458,6 @@ class _DesktopDockPaneState extends State<DesktopDockPane> {
             SwitchRow(title: l.desktopStage, value: false),
           ],
         ),
-        SettingsGroup(
-          children: [
-            PopUpRow<String>(
-              key: const ValueKey('default browser'),
-              title: l.desktopDefaultBrowser,
-              items: [for (final b in browsers) PopUpItem(b.id, b.name)],
-              value: _browser.isEmpty ? null : _browser,
-              onChanged: browsers.isEmpty
-                  ? null
-                  : (id) async {
-                      final error = await services.tools.setDefaultBrowser(id);
-                      if (!context.mounted) return;
-                      setState(
-                        () =>
-                            _error = error == null ? null : errorText(l, error),
-                      );
-                      await _loadBrowsers();
-                    },
-            ),
-          ],
-        ),
-        if (_error case final error?) ErrorLine(error),
         const DefaultAppsGroup(),
         SettingsGroup(
           heading: l.panoramaSection,
@@ -1095,8 +1052,10 @@ class _Thumb extends StatelessWidget {
   }
 }
 
-/// The default app of the common kinds of files and links (Launch Services, Apps1): one pop-up
-/// per kind that more than nothing opens; hidden without the registry.
+/// The default apps (Launch Services, Apps1; kit `Default Apps Card`): the web browser, mail,
+/// text editor and image viewer, each an App pop-up listing the apps that declare the type,
+/// sorted by name. A kind nothing opens is not shown. There is no Terminal row: nothing in
+/// Silica starts "the default terminal" yet.
 class DefaultAppsGroup extends StatefulWidget {
   const DefaultAppsGroup({super.key});
 
@@ -1105,19 +1064,16 @@ class DefaultAppsGroup extends StatefulWidget {
 }
 
 class _DefaultAppsGroupState extends State<DefaultAppsGroup> {
-  /// The kinds: the type asked (and set), with the label.
+  /// The type asked (and set) for each row; the image viewer stands for every image type.
   static const List<String> types = [
+    'x-scheme-handler/http',
     'x-scheme-handler/mailto',
     'text/plain',
     'image/png',
-    'application/pdf',
-    'video/mp4',
-    'audio/mpeg',
   ];
 
-  final Map<String, List<String>> _apps = {};
+  final Map<String, List<AppChoice>> _apps = {};
   final Map<String, String?> _defaults = {};
-  Map<String, String> _names = const {};
 
   @override
   void initState() {
@@ -1128,47 +1084,58 @@ class _DefaultAppsGroupState extends State<DefaultAppsGroup> {
   Future<void> _load() async {
     final installed = await SilicaApps.list();
     if (installed == null || !mounted) return;
-    final names = {for (final a in installed) a.id: a.name};
+    final byId = {for (final a in installed) a.id: a};
     for (final type in types) {
-      final apps = await SilicaApps.appsFor(type);
+      final ids = await SilicaApps.appsFor(type);
       final current = await SilicaApps.defaultFor(type);
       if (!mounted) return;
-      _apps[type] = apps;
+      _apps[type] = defaultAppChoices(ids, byId);
       _defaults[type] = current;
     }
-    setState(() => _names = names);
+    setState(() {});
   }
 
   String _label(AppLocalizations l, String type) => switch (type) {
+    'x-scheme-handler/http' => l.defaultAppBrowser,
     'x-scheme-handler/mailto' => l.defaultAppMail,
-    'text/plain' => l.defaultAppText,
-    'image/png' => l.defaultAppImages,
-    'application/pdf' => l.defaultAppPdf,
-    'video/mp4' => l.defaultAppVideo,
-    _ => l.defaultAppMusic,
+    'text/plain' => l.defaultAppTextEditor,
+    _ => l.defaultAppImageViewer,
   };
+
+  Future<void> _set(String type, String id) async {
+    final all = type == 'image/png' ? imageTypes : [type];
+    for (final t in all) {
+      await SilicaApps.setDefault(t, id);
+    }
+    if (!mounted) return;
+    setState(() => _defaults[type] = id);
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final rows = [
+    final shown = [
       for (final type in types)
-        if ((_apps[type] ?? const []).isNotEmpty)
-          PopUpRow<String>(
+        if ((_apps[type] ?? const []).isNotEmpty) type,
+    ];
+    if (shown.isEmpty) return const SizedBox.shrink();
+    return SettingsGroup(
+      heading: l.defaultAppsHeading,
+      children: [
+        for (final (i, type) in shown.indexed)
+          ValueRow(
             key: ValueKey('default app $type'),
             title: _label(l, type),
-            items: [
-              for (final id in _apps[type]!) PopUpItem(id, _names[id] ?? id),
-            ],
-            value: _defaults[type],
-            onChanged: (id) async {
-              await SilicaApps.setDefault(type, id);
-              if (!mounted) return;
-              setState(() => _defaults[type] = id);
-            },
+            // 47 + the separator is the kit's 48 pitch; the last row has no separator.
+            height: i == shown.length - 1 ? 48 : 47,
+            trailing: AppPopUp(
+              apps: _apps[type]!,
+              value: _defaults[type],
+              semanticLabel: _label(l, type),
+              onChanged: (id) => unawaited(_set(type, id)),
+            ),
           ),
-    ];
-    if (rows.isEmpty) return const SizedBox.shrink();
-    return SettingsGroup(heading: l.defaultAppsHeading, children: rows);
+      ],
+    );
   }
 }

@@ -69,6 +69,7 @@ Future<bool> showConfirm(
   required String message,
   required String confirm,
   required String cancel,
+  bool cancelDefault = false,
 }) {
   final overlay = Overlay.of(context);
   final done = Completer<bool>();
@@ -88,14 +89,31 @@ Future<bool> showConfirm(
             key: const ValueKey('confirm'),
             title: title,
             message: message,
-            actions: [
-              AmalfiPushButton(label: cancel, onPressed: () => answer(false)),
-              AmalfiPushButton(
-                label: confirm,
-                variant: AmalfiPushButtonVariant.destructive,
-                onPressed: () => answer(true),
-              ),
-            ],
+            // Cancel is the default (Primary, last) when [cancelDefault]: the confirm button is
+            // then a plain Secondary one (kit alert `Quit and Move`).
+            actions: cancelDefault
+                ? [
+                    AmalfiPushButton(
+                      label: confirm,
+                      onPressed: () => answer(true),
+                    ),
+                    AmalfiPushButton(
+                      label: cancel,
+                      variant: AmalfiPushButtonVariant.primary,
+                      onPressed: () => answer(false),
+                    ),
+                  ]
+                : [
+                    AmalfiPushButton(
+                      label: cancel,
+                      onPressed: () => answer(false),
+                    ),
+                    AmalfiPushButton(
+                      label: confirm,
+                      variant: AmalfiPushButtonVariant.destructive,
+                      onPressed: () => answer(true),
+                    ),
+                  ],
           ),
         ),
       ),

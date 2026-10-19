@@ -138,27 +138,6 @@ void main() {
       expect(h.settings.values['dock.position'], isNull);
     });
 
-    testWidgets('the default web browser goes through xdg-settings', (
-      tester,
-    ) async {
-      final tools = FakeTools()
-        ..browserList = const [
-          AppEntry(id: 'firefox.desktop', name: 'Firefox'),
-          AppEntry(id: 'chromium.desktop', name: 'Chromium'),
-        ]
-        ..browser = 'firefox.desktop';
-      final h = await pumpSettings(
-        tester,
-        pane: PaneId.desktopDock,
-        tools: tools,
-        height: 1200,
-      );
-      await settle(tester);
-      await choose(tester, 'default browser', 'Chromium');
-      await settle(tester);
-      expect(h.tools.calls, contains('browser chromium.desktop'));
-    });
-
     testWidgets('a hot corner action sets hotcorners.* (#240)', (tester) async {
       final h = await pumpSettings(
         tester,

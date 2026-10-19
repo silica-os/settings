@@ -2876,12 +2876,6 @@ abstract class AppLocalizations {
   /// **'Scale effect'**
   String get dockScale;
 
-  /// No description provided for @desktopDefaultBrowser.
-  ///
-  /// In en, this message translates to:
-  /// **'Default web browser'**
-  String get desktopDefaultBrowser;
-
   /// No description provided for @wallpaperAllSpaces.
   ///
   /// In en, this message translates to:
@@ -4106,35 +4100,113 @@ abstract class AppLocalizations {
   /// **'Mail'**
   String get defaultAppMail;
 
+  /// Privacy & Security: only Flatpak apps from Flathub and system apps open
+  ///
+  /// In en, this message translates to:
+  /// **'Flathub'**
+  String get securityFlathub;
+
+  /// Privacy & Security: caption under the card while the policy is Anywhere
+  ///
+  /// In en, this message translates to:
+  /// **'Set from the command line. Apps from anywhere open without a check.'**
+  String get securityAnywhereHelp;
+
+  /// Software Update: the daily background check
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates automatically'**
+  String get updateAutoCheck;
+
+  /// Software Update: install found updates without asking
+  ///
+  /// In en, this message translates to:
+  /// **'Install updates automatically'**
+  String get updateAutoInstall;
+
+  /// Storage: heading of the installed apps
+  ///
+  /// In en, this message translates to:
+  /// **'Applications'**
+  String get storageApplications;
+
+  /// Storage: kind of an app bundle
+  ///
+  /// In en, this message translates to:
+  /// **'App bundle'**
+  String get storageKindBundle;
+
+  /// Storage: kind of a Flatpak app (followed by the remote)
+  ///
+  /// In en, this message translates to:
+  /// **'Flatpak'**
+  String get storageKindFlatpak;
+
+  /// Storage: kind of an AppImage
+  ///
+  /// In en, this message translates to:
+  /// **'AppImage'**
+  String get storageKindAppImage;
+
+  /// Storage: kind of an app that ships with the system
+  ///
+  /// In en, this message translates to:
+  /// **'System app'**
+  String get storageKindSystem;
+
+  /// Storage: accessible name of the remove button
+  ///
+  /// In en, this message translates to:
+  /// **'Remove “{app}”'**
+  String storageRemoveApp(String app);
+
+  /// Storage: button of the alert for a running app
+  ///
+  /// In en, this message translates to:
+  /// **'Quit and Move'**
+  String get storageQuitAndMove;
+
+  /// Storage: alert for removing a running app
+  ///
+  /// In en, this message translates to:
+  /// **'“{app}” is open. Quit it and move it to the Trash?'**
+  String storageQuitAndMoveTitle(String app);
+
+  /// Storage: a running app did not quit in time
+  ///
+  /// In en, this message translates to:
+  /// **'“{app}” did not quit.'**
+  String storageQuitFailed(String app);
+
+  /// Storage: uninstalling a Flatpak app failed
+  ///
+  /// In en, this message translates to:
+  /// **'“{app}” could not be removed.'**
+  String storageRemoveFailed(String app);
+
+  /// Storage: moving an app to the Trash failed
+  ///
+  /// In en, this message translates to:
+  /// **'“{app}” could not be moved to the Trash: {reason}'**
+  String storageRemoveFailedReason(String app, String reason);
+
+  /// Default apps: web links
+  ///
+  /// In en, this message translates to:
+  /// **'Web browser'**
+  String get defaultAppBrowser;
+
   /// Default apps: plain text
   ///
   /// In en, this message translates to:
-  /// **'Text documents'**
-  String get defaultAppText;
+  /// **'Text editor'**
+  String get defaultAppTextEditor;
 
   /// Default apps: pictures
   ///
   /// In en, this message translates to:
-  /// **'Images'**
-  String get defaultAppImages;
-
-  /// Default apps: PDF
-  ///
-  /// In en, this message translates to:
-  /// **'PDF documents'**
-  String get defaultAppPdf;
-
-  /// Default apps: videos
-  ///
-  /// In en, this message translates to:
-  /// **'Videos'**
-  String get defaultAppVideo;
-
-  /// Default apps: audio
-  ///
-  /// In en, this message translates to:
-  /// **'Music'**
-  String get defaultAppMusic;
+  /// **'Image viewer'**
+  String get defaultAppImageViewer;
 }
 
 class _AppLocalizationsDelegate

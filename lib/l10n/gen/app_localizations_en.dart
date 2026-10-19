@@ -1479,9 +1479,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dockScale => 'Scale effect';
 
   @override
-  String get desktopDefaultBrowser => 'Default web browser';
-
-  @override
   String get wallpaperAllSpaces => 'Show on all spaces';
 
   @override
@@ -2197,17 +2194,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultAppMail => 'Mail';
 
   @override
-  String get defaultAppText => 'Text documents';
+  String get securityFlathub => 'Flathub';
 
   @override
-  String get defaultAppImages => 'Images';
+  String get securityAnywhereHelp =>
+      'Set from the command line. Apps from anywhere open without a check.';
 
   @override
-  String get defaultAppPdf => 'PDF documents';
+  String get updateAutoCheck => 'Check for updates automatically';
 
   @override
-  String get defaultAppVideo => 'Videos';
+  String get updateAutoInstall => 'Install updates automatically';
 
   @override
-  String get defaultAppMusic => 'Music';
+  String get storageApplications => 'Applications';
+
+  @override
+  String get storageKindBundle => 'App bundle';
+
+  @override
+  String get storageKindFlatpak => 'Flatpak';
+
+  @override
+  String get storageKindAppImage => 'AppImage';
+
+  @override
+  String get storageKindSystem => 'System app';
+
+  @override
+  String storageRemoveApp(String app) {
+    return 'Remove “$app”';
+  }
+
+  @override
+  String get storageQuitAndMove => 'Quit and Move';
+
+  @override
+  String storageQuitAndMoveTitle(String app) {
+    return '“$app” is open. Quit it and move it to the Trash?';
+  }
+
+  @override
+  String storageQuitFailed(String app) {
+    return '“$app” did not quit.';
+  }
+
+  @override
+  String storageRemoveFailed(String app) {
+    return '“$app” could not be removed.';
+  }
+
+  @override
+  String storageRemoveFailedReason(String app, String reason) {
+    return '“$app” could not be moved to the Trash: $reason';
+  }
+
+  @override
+  String get defaultAppBrowser => 'Web browser';
+
+  @override
+  String get defaultAppTextEditor => 'Text editor';
+
+  @override
+  String get defaultAppImageViewer => 'Image viewer';
 }
